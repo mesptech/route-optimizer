@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Route Optimizer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f14; --surface: #161921; --border: #252830;
+    --accent: #4ade80; --accent2: #86efac; --muted: #4b5563;
+    --text: #e5e7eb; --text-dim: #9ca3af; --danger: #f87171;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px 80px; }
+  header { text-align: center; margin-bottom: 48px; }
+  header h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: clamp(2rem, 5vw, 3.2rem); color: var(--accent); letter-spacing: -0.02em; line-height: 1.1; }
+  header p { margin-top: 10px; color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .container { width: 100%; max-width: 680px; display: flex; flex-direction: column; gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .section-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .stop-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .stop-number { font-size: 0.7rem; color: var(--muted); min-width: 20px; text-align: right; flex-shrink: 0; padding-top: 11px; }
+  .stop-input-wrap { flex: 1; position: relative; }
+  .stop-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 0.85rem; color: var(--text); outline: none; transition: border-color 0.2s; }
+  .stop-input::placeholder { color: var(--muted); }
+  .stop-input:focus { border-color: var(--accent); }
+  .stop-input.confirmed { border-color: #22c55e; background: #0d1f10; }
+  .suggestions { position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e2128; border: 1px solid #3a3f4b; border-radius: 10px; margin-top: 4px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: none; }
+  .suggestions.visible { display: block; }
+  .suggestion-item { padding: 10px 14px; font-size: 0.78rem; color: var(--text-dim); cursor: pointer; border-top: 1px solid #252830; line-height: 1.4; }
+  .suggestion-item:first-child { border-top: none; }
+  .suggestion-item:hover { background: #252830; color: var(--text); }
+  .suggestion-main { color: var(--text); font-size: 0.82rem; }
+  .suggestion-sub { color: var(--muted); font-size: 0.72rem; margin-top: 2px; }
+  .btn-icon { background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted); cursor: pointer; padding: 8px 10px; font-size: 0.9rem; transition: all 0.15s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .btn-icon:hover { border-color: var(--danger); color: var(--danger); }
+  .actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .btn { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-radius: 8px; padding: 10px 18px; border: 1px solid transparent; transition: all 0.2s; }
+  .btn-ghost { background: none; border-color: var(--border); color: var(--text-dim); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); color: #0d0f14; font-weight: 500; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .toggle-group { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+  .toggle-btn { font-family: 'DM Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; background: none; border: none; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .toggle-btn.active { background: var(--accent); color: #0d0f14; font-weight: 500; }
+  .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.78rem; color: var(--text-dim); user-select: none; }
+  .checkbox-label input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .result-card { background: var(--surface); border: 1px solid var(--accent); border-radius: 12px; padding: 24px; display: none; }
+  .result-card.visible { display: block; animation: fadeIn 0.3s ease; }
+  .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .result-title { font-family: 'Fraunces', serif; font-size: 1rem; color: var(--accent); font-weight: 300; font-style: italic; }
+  .url-box { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; word-break: break-all; font-size: 0.72rem; color: var(--text-dim); margin-bottom: 16px; max-height: 120px; overflow-y: auto; line-height: 1.6; }
+  .route-stops { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .route-stop-item { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; }
+  .route-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .route-dot.start { background: #60a5fa; }
+  .route-dot.end { background: #f87171; }
+  .route-line { width: 1px; height: 16px; background: var(--border); margin-left: 3.5px; }
+  .copy-btn { width: 100%; padding: 12px; background: var(--accent); color: #0d0f14; border: none; border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.2s; }
+  .copy-btn:hover { background: var(--accent2); }
+  .copy-btn.copied { background: #1a2e1a; color: var(--accent); border: 1px solid var(--accent); }
+  .open-btn { width: 100%; padding: 11px; background: none; color: var(--text-dim); border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Mono', monospace; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; margin-top: 8px; transition: all 0.2s; text-decoration: none; display: block; text-align: center; }
+  .open-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .divider { width: 100%; height: 1px; background: var(--border); margin: 4px 0; }
+  .tip { font-size: 0.7rem; color: var(--muted); line-height: 1.6; margin-top: 12px; }
+  .loading-overlay { display: none; align-items: center; justify-content: center; gap: 10px; padding: 16px; color: var(--accent); font-size: 0.8rem; }
+  .loading-overlay.visible { display: flex; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .badge { display: inline-block; background: #1a2e1a; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; font-size: 0.65rem; padding: 2px 7px; letter-spacing: 0.1em; text-transform: uppercase; margin-left: 8px; vertical-align: middle; }
+  .savings-info { background: #0d1f0d; border: 1px solid #1a3a1a; border-radius: 8px; padding: 12px 14px; font-size: 0.75rem; color: var(--accent2); margin-bottom: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Route Optimizer</h1>
+  <p>Βέλτιστη διαδρομή → Google Maps link</p>
+</header>
+
+<div class="container">
+  <div class="card">
+    <div class="section-label">📍 Στάσεις διαδρομής</div>
+    <div id="stops-list"></div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="addStop()">+ Προσθήκη στάσης</button>
+      <button class="btn btn-ghost" onclick="clearAll()">✕ Καθαρισμός</button>
+    </div>
+    <div style="color:var(--danger);font-size:0.78rem;margin-top:8px;display:none;" id="error-msg">Πρόσθεσε τουλάχιστον 2 τοποθεσίες.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">⚙️ Επιλογές</div>
+    <div style="margin-bottom:16px;">
+      <div class="section-label" style="margin-bottom:8px;">Μεταφορά</div>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="mode-driving" onclick="setMode('driving')">🚗 Αυτοκίνητο</button>
+        <button class="toggle-btn" id="mode-walking" onclick="setMode('walking')">🚶 Πεζή</button>
+        <button class="toggle-btn" id="mode-transit" onclick="setMode('transit')">🚌 ΜΜΜ</button>
+        <button class="toggle-btn" id="mode-bicycling" onclick="setMode('bicycling')">🚴 Ποδήλατο</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <label class="checkbox-label"><input type="checkbox" id="fix-start" checked> Η πρώτη στάση είναι πάντα η αφετηρία</label>
+      <label class="checkbox-label"><input type="checkbox" id="fix-end"> Η τελευταία στάση είναι πάντα ο προορισμός</label>
+      <label class="checkbox-label"><input type="checkbox" id="round-trip"> Επιστροφή στην αφετηρία (round trip)</label>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="generate-btn" style="width:100%; padding: 14px; font-size:0.85rem;" onclick="generateRoute()">
+    ⚡ Δημιουργία βέλτιστης διαδρομής
+  </button>
+
+  <div class="loading-overlay" id="loading">
+    <div class="spinner"></div>
+    <span>Υπολογισμός βέλτιστης διαδρομής...</span>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-header">
+      <span class="result-title">Η βέλτιστη διαδρομή σου <span class="badge" id="optimized-badge">optimized</span></span>
+      <span id="stop-count" style="font-size:0.75rem; color: var(--muted);"></span>
+    </div>
+    <div class="savings-info" id="savings-info" style="display:none;"></div>
+    <div class="route-stops" id="route-stops-display"></div>
+    <div class="divider"></div>
+    <div class="section-label" style="margin-top:16px; margin-bottom:8px;">Google Maps Link</div>
+    <div class="url-box" id="url-display"></div>
+    <button class="copy-btn" id="copy-btn" onclick="copyLink()">📋 Αντιγραφή link</button>
+    <a class="open-btn" id="open-btn" href="#" target="_blank">↗ Άνοιγμα στο Google Maps</a>
+    <div class="tip">💡 Πάτα "Άνοιγμα στο Google Maps" ή αντέγραψε το link.</div>
+  </div>
+</div>
+
+<script>
+const API_KEY = 'AIzaSyDUj06T9pckZympGEb3E8bXLunKgLhnwB8';
+let travelMode = 'driving';
+let stopCount = 0;
+let placesData = {};
+let debounceTimers = {};
+
+function setMode(mode) {
+  travelMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('mode-' + mode).classList.add('active');
+}
+
+// Use Places Autocomplete via new HTTP API (works everywhere, no JS SDK needed)
+async function fetchSuggestions(inputId, query) {
+  if (!query || query.length < 2) { hideSuggestions(inputId); return; }
+  try {
+    const res = await fetch(`https://places.googleapis.com/v1/places:autocomplete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': API_KEY,
+      },
+      body: JSON.stringify({ input: query, languageCode: 'el' })
+    });
+    const data = await res.json();
+    if (data.suggestions && data.suggestions.length > 0) {
+      showSuggestions(inputId, data.suggestions);
+    } else {
+      hideSuggestions(inputId);
+    }
+  } catch(e) {
+    hideSuggestions(inputId);
+  }
+}
+
+function showSuggestions(inputId, suggestions) {
+  const box = document.getElementById('sug-' + inputId);
+  if (!box) return;
+  box.innerHTML = '';
+  suggestions.slice(0, 5).forEach(s => {
+    const pred = s.placePrediction;
+    if (!pred) return;
+    const main = pred.structuredFormat?.mainText?.text || pred.text?.text || '';
+    const sub = pred.structuredFormat?.secondaryText?.text || '';
+    const item = document.createElement('div');
+    item.className = 'suggestion-item';
+    item.innerHTML = `<div class="suggestion-main">${main}</div>${sub ? `<div class="suggestion-sub">${sub}</div>` : ''}`;
+    item.addEventListener('touchstart', (e) => e.preventDefault(), {passive: false});
+    item.addEventListener('mousedown', (e) => e.preventDefault());
+    item.addEventListener('click', () => {
+      const fullText = pred.text?.text || main;
+      selectPlace(inputId, fullText);
+    });
+    box.appendChild(item);
+  });
+  box.classList.add('visible');
+}
+
+function hideSuggestions(inputId) {
+  const box = document.getElementById('sug-' + inputId);
+  if (box) box.classList.remove('visible');
+}
+
+function selectPlace(inputId, name) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.value = name;
+  input.classList.add('confirmed');
+  placesData[inputId] = { name };
+  hideSuggestions(inputId);
+}
+
+function addStop() {
+  stopCount++;
+  const id = 'stop-' + stopCount;
+  const rowId = 'row-' + stopCount;
+  const list = document.getElementById('stops-list');
+  const row = document.createElement('div');
+  row.className = 'stop-row';
+  row.id = rowId;
+  row.innerHTML = `
+    <span class="stop-number">${list.children.length + 1}</span>
+    <div class="stop-input-wrap">
+      <input class="stop-input" id="${id}" type="text" placeholder="Αναζήτηση τοποθεσίας..." autocomplete="off" />
+      <div class="suggestions" id="sug-${id}"></div>
+    </div>
+    <button class="btn-icon" onclick="removeStop('${rowId}', '${id}')">✕</button>
+  `;
+  list.appendChild(row);
+  reindex();
+
+  const input = document.getElementById(id);
+  input.addEventListener('input', () => {
+    input.classList.remove('confirmed');
+    delete placesData[id];
+    clearTimeout(debounceTimers[id]);
+    debounceTimers[id] = setTimeout(() => fetchSuggestions(id, input.value.trim()), 350);
+  });
+  input.addEventListener('blur', () => {
+    setTimeout(() => hideSuggestions(id), 200);
+  });
+  input.focus();
+}
+
+function removeStop(rowId, inputId) {
+  document.getElementById(rowId)?.remove();
+  delete placesData[inputId];
+  delete debounceTimers[inputId];
+  reindex();
+}
+
+function reindex() {
+  document.querySelectorAll('.stop-row').forEach((row, i) => {
+    row.querySelector('.stop-number').textContent = i + 1;
+  });
+}
+
+function clearAll() {
+  document.getElementById('stops-list').innerHTML = '';
+  document.getElementById('result-card').classList.remove('visible');
+  document.getElementById('error-msg').style.display = 'none';
+  placesData = {};
+  stopCount = 0;
+}
+
+function getAllStops() {
+  return Array.from(document.querySelectorAll('.stop-input'))
+    .map(inp => placesData[inp.id]?.name || inp.value.trim())
+    .filter(v => v.length > 0);
+}
+
+async function computeOptimalOrder(stops, fixStart, fixEnd) {
+  // Use Distance Matrix via HTTP API
+  const origins = stops.map(s => encodeURIComponent(s)).join('|');
+  const destinations = origins;
+  const mode = travelMode;
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origins}&destinations=${destinations}&mode=${mode}&key=${API_KEY}`;
+
+  // Can't call directly due to CORS — use Maps JS SDK instead
+  return null;
+}
+
+function loadGoogleMaps() {
+  return new Promise((resolve) => {
+    if (window.google && window.google.maps) { resolve(); return; }
+    window._mapsReady = resolve;
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=_mapsReady`;
+    document.head.appendChild(s);
+  });
+}
+
+async function computeOptimalOrderSDK(stops, fixStart, fixEnd) {
+  await loadGoogleMaps();
+  const service = new google.maps.DistanceMatrixService();
+  const n = stops.length;
+  const matrix = Array.from({length: n}, () => Array(n).fill(Infinity));
+
+  const result = await new Promise((resolve, reject) => {
+    service.getDistanceMatrix({
+      origins: stops, destinations: stops,
+      travelMode: google.maps.TravelMode[travelMode.toUpperCase()],
+      unitSystem: google.maps.UnitSystem.METRIC,
+    }, (res, status) => {
+      if (status === 'OK') resolve(res);
+      else reject(new Error('Distance Matrix: ' + status));
+    });
+  });
+
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < n; j++)
+      if (i !== j && result.rows[i].elements[j].status === 'OK')
+        matrix[i][j] = result.rows[i].elements[j].duration.value;
+
+  let indices = stops.map((_, i) => i);
+  let startFixed = fixStart ? [indices.shift()] : [];
+  let endFixed = fixEnd ? [indices.pop()] : [];
+  let optimized = [...startFixed];
+  let remaining = [...indices];
+  let current = optimized.length > 0 ? optimized[optimized.length - 1] : remaining.shift();
+  if (optimized.length === 0) optimized.push(current);
+
+  while (remaining.length > 0) {
+    let best = Infinity, bestIdx = -1, bestPos = -1;
+    for (let ri = 0; ri < remaining.length; ri++) {
+      if (matrix[current][remaining[ri]] < best) {
+        best = matrix[current][remaining[ri]]; bestIdx = ri; bestPos = remaining[ri];
+      }
+    }
+    optimized.push(bestPos); current = bestPos; remaining.splice(bestIdx, 1);
+  }
+  optimized = [...optimized, ...endFixed];
+
+  let origDur = 0, optDur = 0;
+  for (let i = 0; i < n - 1; i++) origDur += matrix[i][i+1] || 0;
+  for (let i = 0; i < optimized.length - 1; i++) optDur += matrix[optimized[i]][optimized[i+1]] || 0;
+  return { order: optimized, originalDuration: origDur, optimizedDuration: optDur };
+}
+
+async function generateRoute() {
+  const stops = getAllStops();
+  const err = document.getElementById('error-msg');
+  if (stops.length < 2) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+
+  const fixStart = document.getElementById('fix-start').checked;
+  const fixEnd = document.getElementById('fix-end').checked;
+  const roundTrip = document.getElementById('round-trip').checked;
+
+  const btn = document.getElementById('generate-btn');
+  btn.disabled = true;
+  document.getElementById('loading').classList.add('visible');
+  document.getElementById('result-card').classList.remove('visible');
+
+  try {
+    let orderedStops, savings = null;
+
+    if (stops.length > 2) {
+      const result = await computeOptimalOrderSDK(stops, fixStart, fixEnd);
+      orderedStops = result.order.map(i => stops[i]);
+      const savedSec = result.originalDuration - result.optimizedDuration;
+      if (savedSec > 60) savings = `⏱ Εξοικονομείς ~${Math.round(savedSec / 60)} λεπτά.`;
+    } else {
+      orderedStops = [...stops];
+    }
+
+    if (roundTrip) orderedStops.push(orderedStops[0]);
+
+    const origin = encodeURIComponent(orderedStops[0]);
+    const destination = encodeURIComponent(orderedStops[orderedStops.length - 1]);
+    const waypoints = orderedStops.slice(1, -1).map(s => encodeURIComponent(s)).join('|');
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=${travelMode}`;
+    if (waypoints) url += `&waypoints=${waypoints}`;
+
+    document.getElementById('url-display').textContent = url;
+    document.getElementById('open-btn').href = url;
+    document.getElementById('stop-count').textContent = orderedStops.length + ' στάσεις';
+    document.getElementById('optimized-badge').style.display = stops.length > 2 ? 'inline-block' : 'none';
+
+    const savingsEl = document.getElementById('savings-info');
+    if (savings) { savingsEl.textContent = savings; savingsEl.style.display = 'block'; }
+    else { savingsEl.style.display = 'none'; }
+
+    const display = document.getElementById('route-stops-display');
+    display.innerHTML = '';
+    orderedStops.forEach((stop, i) => {
+      const dotClass = i === 0 ? 'route-dot start' : (i === orderedStops.length - 1 ? 'route-dot end' : 'route-dot');
+      display.innerHTML += `
+        <div class="route-stop-item"><div class="${dotClass}"></div><span>${stop}</span></div>
+        ${i < orderedStops.length - 1 ? '<div class="route-line"></div>' : ''}
+      `;
+    });
+
+    document.getElementById('result-card').classList.add('visible');
+    document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch(e) {
+    alert('Σφάλμα: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loading').classList.remove('visible');
+  }
+}
+
+function copyLink() {
+  const url = document.getElementById('url-display').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Αντιγράφηκε!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Αντιγραφή link'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+addStop(); addStop(); addStop();
+</script>
+</body>
+</html>
