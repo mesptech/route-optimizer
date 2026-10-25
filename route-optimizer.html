@@ -87,13 +87,8 @@
   #stops-map { height: 230px; background: #E5E5EA; }
   .map-hint { font-size: 12px; color: var(--text3); padding: 8px 16px 12px; line-height: 1.4; }
 
-  /* Μέσο μεταφοράς */
+  /* Επιλογές διαδρομής (μόνο αυτοκίνητο) */
   .options-section { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
-  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .seg-btn { background: var(--bg); border: 2px solid transparent; border-radius: 12px; padding: 8px 2px 7px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--text2); }
-  .seg-ico { font-size: 22px; line-height: 1.1; }
-  .seg-btn.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
-  .mode-hint { font-size: 12px; color: var(--orange-dark); background: var(--orange-light); border-radius: 8px; padding: 8px 10px; line-height: 1.4; display: none; }
   .toggles { display: flex; flex-direction: column; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: white; border-bottom: 1px solid var(--border); cursor: pointer; gap: 12px; }
   .toggle-row:last-child { border-bottom: none; }
@@ -142,20 +137,25 @@
   .btn-save-history { width: 100%; background: var(--bg); color: var(--text2); border: none; border-radius: var(--radius-sm); padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .divider { height: 1px; background: var(--border); margin: 0 16px; }
 
-  /* Επαφές */
+  /* Αποθηκευμένα σημεία */
   .btn-new-contact { width: 100%; background: var(--accent); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
   .text-input { width: 100%; background: white; border: 1.5px solid transparent; border-radius: var(--radius-sm); padding: 11px 12px; font-size: 16px; color: var(--text); outline: none; box-shadow: var(--shadow); }
   .text-input:focus { border-color: var(--accent); }
   .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
   .chip { flex-shrink: 0; background: white; border: 1px solid var(--border); border-radius: 16px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; }
   .chip.active { background: var(--accent); border-color: var(--accent); color: white; }
-  .place-card { background: white; border-radius: 14px; box-shadow: var(--shadow); padding: 12px 12px 12px 14px; display: flex; gap: 10px; align-items: center; }
+  .place-card { background: white; border-radius: 14px; box-shadow: var(--shadow); padding: 12px 12px 12px 14px; display: flex; flex-direction: column; gap: 10px; }
   .place-main { flex: 1; min-width: 0; cursor: pointer; }
   .place-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .place-edit { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--accent); }
   .place-addr { font-size: 12px; color: var(--text3); line-height: 1.4; margin-top: 2px; word-break: break-word; }
   .place-group { font-size: 11px; font-weight: 600; background: var(--accent-light); color: var(--accent-dark); padding: 2px 8px; border-radius: 10px; }
   .place-uses { font-size: 11px; color: var(--text4); margin-top: 2px; }
-  .place-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-items: stretch; }
+  .place-actions { display: flex; gap: 6px; }
+  .place-actions .btn-small { flex: 1; justify-content: center; padding: 9px 4px; }
+  .btn-small.nav { background: #EEF0FF; color: #3A35C9; }
+  .btn-small.call { background: var(--green-light); color: var(--green-dark); }
+  .points-hint { font-size: 12px; color: var(--text3); text-align: center; line-height: 1.5; padding: 0 8px; }
   .empty { text-align: center; padding: 30px 16px; color: var(--text3); font-size: 14px; line-height: 1.6; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
   .empty-icon { font-size: 40px; margin-bottom: 6px; }
   .muted-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
@@ -221,6 +221,7 @@
 
   .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: rgba(28,28,30,0.92); color: white; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; text-align: center; }
   .toast.show { opacity: 1; }
+  .sheet-backdrop.open ~ .toast { bottom: calc(100px + env(safe-area-inset-bottom)); }   /* να μην κρύβει το «Αποθήκευση» */
 </style>
 </head>
 <body>
@@ -232,7 +233,7 @@
   </div>
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="route">🗺️ Διαδρομή</button>
-    <button class="tab-btn" data-tab="contacts">👥 Επαφές</button>
+    <button class="tab-btn" data-tab="contacts">⭐ Σημεία</button>
     <button class="tab-btn" data-tab="history">🕐 Ιστορικό</button>
   </div>
 </div>
@@ -262,7 +263,7 @@
       <div id="stops-list"></div>
       <div class="add-row">
         <button class="btn-add-stop" id="btn-add-stop">＋ Προσθήκη στάσης</button>
-        <button class="btn-from-contacts" id="btn-pick-saved">👥 Από επαφές</button>
+        <button class="btn-from-contacts" id="btn-pick-saved">⭐ Τα σημεία μου</button>
       </div>
     </div>
 
@@ -273,15 +274,8 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><div class="card-icon">⚙️</div><span class="card-title">Πώς θα κινηθείς;</span></div>
+      <div class="card-header"><div class="card-icon">🚗</div><span class="card-title">Επιλογές διαδρομής</span></div>
       <div class="options-section">
-        <div class="seg">
-          <button class="seg-btn" data-mode="driving"><span class="seg-ico">🚗</span>Αυτοκίνητο</button>
-          <button class="seg-btn" data-mode="walking"><span class="seg-ico">🚶</span>Με τα πόδια</button>
-          <button class="seg-btn" data-mode="bicycling"><span class="seg-ico">🚴</span>Ποδήλατο</button>
-          <button class="seg-btn" data-mode="transit"><span class="seg-ico">🚌</span>ΜΜΜ</button>
-        </div>
-        <div class="mode-hint" id="mode-hint">Με ΜΜΜ το Google Maps δέχεται μόνο έναν προορισμό, όχι ενδιάμεσες στάσεις.</div>
         <div class="toggles">
           <div class="toggle-row" data-opt="fixEnd"><span class="toggle-label">Η τελευταία στάση είναι ο τελικός προορισμός</span><div class="toggle-switch" id="toggle-fixEnd"></div></div>
           <div class="toggle-row" data-opt="roundTrip"><span class="toggle-label">Επιστροφή στην αφετηρία</span><div class="toggle-switch" id="toggle-roundTrip"></div></div>
@@ -315,15 +309,16 @@
     </div>
   </div>
 
-  <!-- ΕΠΑΦΕΣ -->
+  <!-- ΑΠΟΘΗΚΕΥΜΕΝΑ ΣΗΜΕΙΑ -->
   <div class="tab-content" id="tab-contacts">
-    <button class="btn-new-contact" id="btn-new-contact">＋ Νέα επαφή</button>
-    <input class="text-input" id="contacts-search" type="search" placeholder="🔍 Όνομα, διεύθυνση ή τηλέφωνο..." autocomplete="off">
+    <button class="btn-new-contact" id="btn-new-contact">＋ Νέο σημείο</button>
+    <input class="text-input" id="contacts-search" type="search" placeholder="🔍 Βρες σημείο: όνομα, διεύθυνση, τηλέφωνο..." autocomplete="off">
     <div class="chips" id="contacts-chips"></div>
     <div id="contacts-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="points-hint" id="points-hint" style="display:none">Τα σημεία μένουν αποθηκευμένα σε αυτή τη συσκευή.<br>Για αντίγραφο ασφαλείας πάτα «Εξαγωγή».</div>
     <div class="muted-row">
-      <button class="link-btn" id="btn-export">⬇︎ Εξαγωγή επαφών</button>
-      <button class="link-btn" id="btn-import">⬆︎ Εισαγωγή επαφών</button>
+      <button class="link-btn" id="btn-export">⬇︎ Εξαγωγή σημείων</button>
+      <button class="link-btn" id="btn-import">⬆︎ Εισαγωγή σημείων</button>
       <input type="file" id="import-file" accept=".json,application/json" style="display:none">
     </div>
   </div>
@@ -336,7 +331,7 @@
 <div class="search-panel" id="search-panel">
   <div class="sp-head">
     <button class="sp-back" id="sp-back">‹ Πίσω</button>
-    <input class="sp-input" id="sp-input" type="search" enterkeyhint="search" placeholder="Διεύθυνση, μαγαζί ή επαφή..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <input class="sp-input" id="sp-input" type="search" enterkeyhint="search" placeholder="Διεύθυνση, μαγαζί ή σημείο..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <button class="sp-mic" id="sp-mic" title="Φωνητική αναζήτηση">🎤</button>
   </div>
   <div class="sp-title" id="sp-title"></div>
@@ -368,7 +363,8 @@ function matchSaved(list, q, limit) {
     const nameStart = nq && norm(p.name).indexOf(nq) === 0 ? 1 : 0;
     out.push({ p, s: nameStart * 1e6 + (p.uses || 0) * 1e3 + (p.lastUsed || 0) / 1e10 });
   }
-  out.sort((a, b) => b.s - a.s);
+  // Πρώτα όσα ταιριάζουν στην αρχή του ονόματος, μετά τα πιο συχνά, μετά αλφαβητικά
+  out.sort((a, b) => (b.s - a.s) || String(a.p.name || '').localeCompare(String(b.p.name || ''), 'el'));
   return out.slice(0, limit || out.length).map(x => x.p);
 }
 function haversine(a, b) {
@@ -459,6 +455,12 @@ function buildMapsLinks(seq, mode) {
   }
   return links;
 }
+// Πλοήγηση με αυτοκίνητο από εκεί που είσαι προς ένα αποθηκευμένο σημείο
+function navUrl(p) {
+  let u = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(urlText(p));
+  if (p.placeId) u += '&destination_place_id=' + encodeURIComponent(p.placeId);
+  return u + '&travelmode=driving';
+}
 function fmtDuration(sec) {
   const m = Math.round(sec / 60);
   if (m < 60) return m + ' λεπτά';
@@ -474,7 +476,7 @@ function friendlyError(e) {
   if (m.indexOf('INVALID_REQUEST') >= 0) return 'Κάποια στάση δεν αναγνωρίστηκε.';
   return m;
 }
-if (typeof module !== 'undefined') module.exports = { norm, matchSaved, haversine, straightMatrix, samePlace, placeLabel, batchOrigins, routeCost, solveOrder, unreachableLegs, buildMapsLinks, urlText, fmtDuration, fmtDistance, friendlyError, esc, MAX_POINTS };
+if (typeof module !== 'undefined') module.exports = { norm, matchSaved, haversine, straightMatrix, samePlace, placeLabel, batchOrigins, routeCost, solveOrder, unreachableLegs, buildMapsLinks, navUrl, urlText, fmtDuration, fmtDistance, friendlyError, esc, MAX_POINTS };
 </script>
 
 <!-- ===== APP ===== -->
@@ -484,14 +486,10 @@ const Store = {
   get(key, def) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; } },
   set(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; } }
 };
-const MODES = {
-  driving:   { icon: '🚗', label: 'Αυτοκίνητο', gm: 'DRIVING' },
-  walking:   { icon: '🚶', label: 'Με τα πόδια', gm: 'WALKING' },
-  bicycling: { icon: '🚴', label: 'Ποδήλατο', gm: 'BICYCLING' },
-  transit:   { icon: '🚌', label: 'ΜΜΜ', gm: 'TRANSIT' }
-};
+// Μόνο αυτοκίνητο (επιλογή του Πέτρου)
+const TRAVEL_MODE = 'driving';
 const S = {
-  mode: 'driving', fixEnd: false, roundTrip: false,
+  fixEnd: false, roundTrip: false, persistAsked: false,
   stops: [], nextId: 1,
   origin: { type: 'gps' }, gps: null, gpsPromise: null, gpsMsg: '',
   mapsReady: false, mapsFailed: false,
@@ -508,22 +506,16 @@ let toastT;
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
 function setLoading(on, text) { $('loading').classList.toggle('visible', on); if (text) $('loading-text').textContent = text; $('generate-btn').disabled = on; }
 
-// ───────── Ρυθμίσεις (θυμάται μέσο μεταφοράς κ.λπ.) ─────────
+// ───────── Ρυθμίσεις (τελικός προορισμός / επιστροφή) ─────────
 function loadSettings() {
-  const s = Store.get('routeai-settings', {});
-  if (MODES[s.mode]) S.mode = s.mode;
+  const s = Store.get('routeai-settings', {}) || {};
   S.fixEnd = !!s.fixEnd; S.roundTrip = !!s.roundTrip && !S.fixEnd;
 }
-function saveSettings() { Store.set('routeai-settings', { mode: S.mode, fixEnd: S.fixEnd, roundTrip: S.roundTrip }); }
-function renderModes() {
-  document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === S.mode));
-  const m = MODES[S.mode];
-  $('generate-btn').textContent = '⚡ Βέλτιστη διαδρομή · ' + m.icon + ' ' + m.label;
-  $('mode-hint').style.display = S.mode === 'transit' ? 'block' : 'none';
+function saveSettings() { Store.set('routeai-settings', { fixEnd: S.fixEnd, roundTrip: S.roundTrip }); }
+function renderOptions() {
   $('toggle-fixEnd').classList.toggle('on', S.fixEnd);
   $('toggle-roundTrip').classList.toggle('on', S.roundTrip);
 }
-function setMode(mode) { if (!MODES[mode] || mode === S.mode) return; S.mode = mode; saveSettings(); renderModes(); invalidateResult(); toast(MODES[mode].icon + ' ' + MODES[mode].label); }
 
 // ───────── Google Maps ─────────
 window.gm_authFailure = function () { S.mapsFailed = true; showAlert(friendlyError(new Error('MAPS_AUTH'))); };
@@ -617,8 +609,16 @@ const Geo = {
   }
 };
 
-// ───────── Επαφές (αποθηκεύονται στη συσκευή) ─────────
+// ───────── Αποθηκευμένα σημεία (μένουν στη συσκευή) ─────────
 function newPlaceId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+// Ζητά από τον browser να μη σβήνει ποτέ τα αποθηκευμένα σημεία
+function requestPersist() {
+  try {
+    if (S.persistAsked || !navigator.storage || !navigator.storage.persist) return;
+    S.persistAsked = true;
+    navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {});
+  } catch (e) {}
+}
 function loadPlaces() {
   const list = Store.get('routeai-places', []);
   if (!Array.isArray(list)) return [];
@@ -627,7 +627,11 @@ function loadPlaces() {
   if (fixed) Store.set('routeai-places', list);
   return list;
 }
-function savePlaces(list) { if (!Store.set('routeai-places', list)) toast('⚠️ Δεν αποθηκεύτηκε (ιδιωτική περιήγηση;)'); }
+function savePlaces(list) {
+  if (!Store.set('routeai-places', list)) { toast('⚠️ Δεν αποθηκεύτηκε (ιδιωτική περιήγηση;)'); return false; }
+  if (list.length) requestPersist();
+  return true;
+}
 function findSaved(p) { return p && !p.isGps && !p.gps ? loadPlaces().find(x => samePlace(x, p)) : null; }
 function groupsOf(list) { return [...new Set(list.map(p => (p.group || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'el')); }
 function upsertPlace(obj) {
@@ -716,12 +720,12 @@ const Search = {
         (sub ? '<div class="res-sub">' + esc(sub) + '</div>' : '') + '</div>' + (dist ? '<div class="res-dist">' + esc(dist) + '</div>' : '') + '</div>';
       items.push(it);
     };
-    if (o.allowGps && !q) row({ kind: 'gps' }, '📍', 'gps', 'Η τοποθεσία μου (GPS)', S.gps ? (S.gps.address || 'Τρέχουσα θέση') : 'Ξεκίνα από εκεί που βρίσκεσαι', '');
+    if (o.allowGps && !q) row({ kind: 'gps' }, '📍', 'gps', o.gpsTitle || 'Η τοποθεσία μου (GPS)', o.gpsSub || (S.gps ? (S.gps.address || 'Τρέχουσα θέση') : 'Ξεκίνα από εκεί που βρίσκεσαι'), '');
     if (!o.noContacts) {
       const cs = matchSaved(loadPlaces(), q, q ? 5 : 8);
       if (cs.length) {
-        html += '<div class="res-head">' + (q ? '👥 Επαφές' : '👥 Οι επαφές μου') + '</div>';
-        cs.forEach(c => row({ kind: 'contact', c }, '👤', 'contact', c.name, c.address, distLabel(c), c.group ? ' <span class="place-group">' + esc(c.group) + '</span>' : ''));
+        html += '<div class="res-head">' + (q ? '⭐ Αποθηκευμένα σημεία' : '⭐ Τα σημεία μου') + '</div>';
+        cs.forEach(c => row({ kind: 'contact', c }, '⭐', 'contact', c.name, c.address, distLabel(c), c.group ? ' <span class="place-group">' + esc(c.group) + '</span>' : ''));
       }
     }
     if (!q) {
@@ -736,7 +740,7 @@ const Search = {
     if (this.note === 'searching') html += '<div class="res-note"><div class="spinner sm"></div>Αναζήτηση στο Google Maps…</div>';
     else if (this.note === 'none') html += '<div class="res-note">Δεν βρέθηκε τίποτα για «' + esc(q) + '». Πρόσθεσε και την περιοχή, π.χ. «' + esc(q) + ' Θεσσαλονίκη».</div>';
     else if (this.note && this.note.indexOf('err:') === 0) html += '<div class="res-note err">⚠️ ' + esc(this.note.slice(4)) + '</div>';
-    if (!q && !items.length) html += '<div class="res-note">Γράψε διεύθυνση, όνομα μαγαζιού ή επαφής. Θα δεις εδώ τα αποτελέσματα με την πλήρη διεύθυνση και την απόσταση από ' + (S.origin.type === 'place' ? 'την αφετηρία' : 'σένα') + ', για να διαλέξεις το σωστό.</div>';
+    if (!q && !items.length) html += '<div class="res-note">Γράψε διεύθυνση, όνομα μαγαζιού ή αποθηκευμένου σημείου. Θα δεις εδώ τα αποτελέσματα με την πλήρη διεύθυνση και την απόσταση από ' + (S.origin.type === 'place' ? 'την αφετηρία' : 'σένα') + ', για να διαλέξεις το σωστό.</div>';
     this.items = items;
     this.body.innerHTML = html;
     this.body.querySelectorAll('.res-item').forEach(el => el.addEventListener('click', () => this.pick(+el.dataset.i, el)));
@@ -786,7 +790,7 @@ function stopVoice() {
   S.listening = false;
   if (S.recognition) { try { S.recognition.stop(); } catch (e) {} S.recognition = null; }
   $('sp-mic').classList.remove('active'); $('global-voice-btn').classList.remove('listening');
-  $('sp-input').placeholder = 'Διεύθυνση, μαγαζί ή επαφή...';
+  $('sp-input').placeholder = 'Διεύθυνση, μαγαζί ή σημείο...';
 }
 
 // ───────── Αφετηρία ─────────
@@ -859,7 +863,7 @@ function renderStops() {
   $('stops-title').textContent = n ? 'Στάσεις · ' + n : 'Στάσεις';
   $('btn-clear').style.display = n ? '' : 'none';
   if (!n) {
-    box.innerHTML = '<div class="stops-empty">Δεν έχεις στάσεις ακόμα. Πάτα <b>«＋ Προσθήκη στάσης»</b> και γράψε διεύθυνση, μαγαζί ή όνομα επαφής — ή διάλεξε από τις επαφές σου.</div>';
+    box.innerHTML = '<div class="stops-empty">Δεν έχεις στάσεις ακόμα. Πάτα <b>«＋ Προσθήκη στάσης»</b> και γράψε διεύθυνση ή μαγαζί — ή διάλεξε από τα αποθηκευμένα σου με το <b>«⭐ Τα σημεία μου»</b>.</div>';
   } else {
     const refTxt = S.origin.type === 'place' ? 'από την αφετηρία' : 'από σένα';
     box.innerHTML = S.stops.map((st, i) => {
@@ -869,10 +873,10 @@ function renderStops() {
       const d = distLabel(p);
       return '<div class="stop-card" data-id="' + st.id + '">' +
         '<div class="stop-num' + (i === n - 1 ? ' last' : '') + '">' + (i + 1) + '</div>' +
-        '<div class="stop-text" data-act="edit"><div class="stop-name">' + esc(name) + (c ? ' <span class="badge-contact">👤 Επαφή</span>' : '') + '</div>' +
+        '<div class="stop-text" data-act="edit"><div class="stop-name">' + esc(name) + (c ? ' <span class="badge-contact" title="Αποθηκευμένο σημείο">⭐ Αποθηκευμένο</span>' : '') + '</div>' +
           (addr ? '<div class="stop-addr">' + esc(addr) + '</div>' : '') +
           '<div class="stop-meta">✓ Στον χάρτη' + (d ? ' · ' + d + ' ' + refTxt : '') + '</div></div>' +
-        '<div class="stop-actions">' + (c ? '' : '<button class="btn-save-contact" data-act="save">☆ Σε επαφές</button>') +
+        '<div class="stop-actions">' + (c ? '' : '<button class="btn-save-contact" data-act="save">☆ Αποθήκευση</button>') +
           '<button class="row-btn" data-act="rm" title="Αφαίρεση">✕</button></div>' +
       '</div>';
     }).join('');
@@ -919,7 +923,34 @@ function openSheet(html, onMount) {
 function closeSheet() { $('sheet-backdrop').classList.remove('open'); $('sheet').innerHTML = ''; }
 $('sheet-backdrop').addEventListener('click', e => { if (e.target.id === 'sheet-backdrop') closeSheet(); });
 
-// Νέα επαφή / επεξεργασία / αποθήκευση στάσης ως επαφή
+// Τρέχουσα θέση (φρέσκο GPS) → σημείο με διεύθυνση
+function currentPlace() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('Η συσκευή δεν δίνει τοποθεσία.'));
+    toast('📍 Εντοπισμός θέσης…');
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      let address = '';
+      try { await gmReady(); address = (await geocodeRaw({ location: { lat, lng } })).formatted_address; } catch (e) {}
+      resolve(mkPlace(null, '', address || (lat.toFixed(5) + ', ' + lng.toFixed(5)), lat, lng));
+    }, err => reject(new Error(err.code === 1 ? 'Δεν επιτράπηκε η πρόσβαση στην τοποθεσία.' : 'Δεν βρέθηκε η θέση σου — δοκίμασε ξανά.')),
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
+  });
+}
+// Αναζήτηση διεύθυνσης για σημείο (με επιλογή «Εδώ που είμαι τώρα»)
+function openPointSearch(title, onPlace) {
+  Search.open({
+    title, noContacts: true, allowGps: true,
+    gpsTitle: 'Εδώ που είμαι τώρα', gpsSub: 'Η θέση σου αυτή τη στιγμή (GPS)',
+    onPick: p => {
+      if (!p.gps) return onPlace(p);
+      currentPlace().then(onPlace).catch(e => toast('⚠️ ' + e.message));
+    }
+  });
+}
+function openNewPoint() { openPointSearch('Νέο σημείο · βρες τη διεύθυνση', p => openContactSheet({ place: p })); }
+
+// Νέο σημείο / επεξεργασία / αποθήκευση στάσης ως σημείο
 function openContactSheet(opts) {
   const edit = opts.edit || null;
   const f = {
@@ -929,9 +960,9 @@ function openContactSheet(opts) {
   };
   const groups = groupsOf(loadPlaces());
   const draw = () => openSheet(
-    '<div class="sheet-head"><div class="sheet-title">' + (edit ? 'Επεξεργασία επαφής' : 'Νέα επαφή') + '</div><button class="sheet-close" data-close>✕</button></div>' +
+    '<div class="sheet-head"><div class="sheet-title">' + (edit ? 'Επεξεργασία σημείου' : '⭐ Αποθήκευση σημείου') + '</div><button class="sheet-close" data-close>✕</button></div>' +
     '<div class="sheet-body">' +
-      '<div><div class="field-label">Όνομα *</div><input class="text-input" id="cs-name" maxlength="60" placeholder="π.χ. Παπαδόπουλος, Αποθήκη" autocomplete="off"></div>' +
+      '<div><div class="field-label">Όνομα *</div><input class="text-input" id="cs-name" maxlength="60" placeholder="π.χ. Πελάτης Παπαδόπουλος, Αποθήκη" autocomplete="off"></div>' +
       '<div><div class="field-label">Διεύθυνση *</div><button class="addr-pick' + (f.place ? '' : ' empty-addr') + '" id="cs-addr">' +
         (f.place ? '<span>📍 ' + esc(f.place.address || f.place.label) + '</span><span class="addr-change">Αλλαγή</span>' : '<span>🔍 Πάτα για αναζήτηση διεύθυνσης</span>') + '</button></div>' +
       '<div><div class="field-label">Τηλέφωνο</div><input class="text-input" id="cs-phone" type="tel" inputmode="tel" maxlength="30" placeholder="π.χ. 6912345678" autocomplete="off"></div>' +
@@ -948,37 +979,37 @@ function openContactSheet(opts) {
       sync();
       I('cs-addr').addEventListener('click', () => {
         sync();
-        Search.open({ title: 'Διεύθυνση επαφής', noContacts: true, onPick: p => { f.place = p; if (!f.name.trim()) f.name = p.name || ''; draw(); } });
+        openPointSearch('Διεύθυνση σημείου', p => { f.place = p; if (!f.name.trim()) f.name = p.name || (p.label || '').split(',')[0]; draw(); });
       });
       I('cs-save').addEventListener('click', () => {
         sync(); if (!f.name.trim() || !f.place) return;
         S.lastGroup = f.group.trim();
         upsertPlace({ id: edit ? edit.id : undefined, name: f.name.trim(), address: f.place.address || f.place.label, lat: f.place.lat, lng: f.place.lng, placeId: f.place.placeId || null, phone: f.phone.trim(), group: f.group.trim(), note: f.note.trim() });
-        closeSheet(); toast('👤 Αποθηκεύτηκε: ' + f.name.trim());
+        closeSheet(); toast('⭐ Αποθηκεύτηκε: ' + f.name.trim());
         renderContacts(); renderStops(); renderOrigin(); if (S.last) renderResult();
       });
       const del = I('cs-del');
       if (del) del.addEventListener('click', () => {
-        if (!confirm('Διαγραφή της επαφής «' + edit.name + '»;')) return;
+        if (!confirm('Διαγραφή του σημείου «' + edit.name + '»;')) return;
         deletePlace(edit.id); closeSheet(); toast('Διαγράφηκε'); renderContacts(); renderStops(); renderOrigin(); if (S.last) renderResult();
       });
     });
   draw();
 }
 
-// Πολλαπλή επιλογή επαφών → στάσεις
+// Πολλαπλή επιλογή αποθηκευμένων σημείων → στάσεις
 function openPicker() {
   const list = loadPlaces();
   if (!list.length) {
-    openSheet('<div class="sheet-head"><div class="sheet-title">Οι επαφές μου</div><button class="sheet-close" data-close>✕</button></div><div class="sheet-body"><div class="empty" style="box-shadow:none"><div class="empty-icon">👥</div>Δεν έχεις επαφές ακόμα.<br>Πρόσθεσε με «＋ Νέα επαφή» ή πάτα «☆ Σε επαφές» σε μια στάση.</div></div><div class="sheet-foot"><button class="btn-primary" id="pk-new">＋ Νέα επαφή</button></div>',
-      sh => sh.querySelector('#pk-new').addEventListener('click', () => { closeSheet(); openContactSheet({}); }));
+    openSheet('<div class="sheet-head"><div class="sheet-title">⭐ Τα σημεία μου</div><button class="sheet-close" data-close>✕</button></div><div class="sheet-body"><div class="empty" style="box-shadow:none"><div class="empty-icon">⭐</div>Δεν έχεις αποθηκευμένα σημεία ακόμα.<br>Πάτα «＋ Νέο σημείο» ή «☆ Αποθήκευση» δίπλα σε μια στάση.</div></div><div class="sheet-foot"><button class="btn-primary" id="pk-new">＋ Νέο σημείο</button></div>',
+      sh => sh.querySelector('#pk-new').addEventListener('click', () => { closeSheet(); openNewPoint(); }));
     return;
   }
   const sel = new Set(), groups = groupsOf(list);
   let q = '', group = '';
   const inRoute = p => S.stops.some(st => samePlace(st.place, p));
   openSheet(
-    '<div class="sheet-head"><div class="sheet-title">Επίλεξε επαφές</div><button class="sheet-close" data-close>✕</button></div>' +
+    '<div class="sheet-head"><div class="sheet-title">⭐ Διάλεξε σημεία για τη διαδρομή</div><button class="sheet-close" data-close>✕</button></div>' +
     '<div class="sheet-body">' +
       (list.length > 5 ? '<input class="text-input" id="pk-q" type="search" placeholder="Αναζήτηση...">' : '') +
       (groups.length ? '<div class="chips" id="pk-chips"></div>' : '') +
@@ -988,13 +1019,14 @@ function openPicker() {
     sh => {
       const draw = () => {
         if (groups.length) {
-          sh.querySelector('#pk-chips').innerHTML = ['', ...groups].map(g => '<button class="chip' + (g === group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλες') + '</button>').join('');
+          sh.querySelector('#pk-chips').innerHTML = ['', ...groups].map(g => '<button class="chip' + (g === group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλα') + '</button>').join('');
           sh.querySelectorAll('#pk-chips .chip').forEach(c => c.addEventListener('click', () => { group = c.dataset.g; draw(); }));
         }
         const items = matchSaved(list, q).filter(p => !group || (p.group || '') === group);
         sh.querySelector('#pk-list').innerHTML = items.length ? items.map(p => {
           const on = sel.has(p.id), dup = inRoute(p);
-          return '<div class="pick-row' + (on ? ' on' : '') + (dup ? ' in-route' : '') + '" data-id="' + esc(p.id) + '"><div class="pick-check">' + (on ? '✓' : '') + '</div><div class="place-main"><div class="place-name">' + esc(p.name) + (p.group ? ' <span class="place-group">' + esc(p.group) + '</span>' : '') + '</div><div class="place-addr">' + esc(p.address) + (dup ? ' · ήδη στη διαδρομή' : '') + '</div></div></div>';
+          const d = distLabel(p);
+          return '<div class="pick-row' + (on ? ' on' : '') + (dup ? ' in-route' : '') + '" data-id="' + esc(p.id) + '"><div class="pick-check">' + (on ? '✓' : '') + '</div><div class="place-main"><div class="place-name">' + esc(p.name) + (p.group ? ' <span class="place-group">' + esc(p.group) + '</span>' : '') + '</div><div class="place-addr">' + esc(p.address) + (d ? ' · ' + d : '') + (dup ? ' · ήδη στη διαδρομή' : '') + '</div></div></div>';
         }).join('') : '<div class="empty" style="box-shadow:none">Κανένα αποτέλεσμα.</div>';
         sh.querySelectorAll('.pick-row').forEach(r => r.addEventListener('click', () => {
           const id = r.dataset.id;
@@ -1016,30 +1048,34 @@ function openPicker() {
     });
 }
 
-// ───────── Καρτέλα «Επαφές» ─────────
+// ───────── Καρτέλα «⭐ Σημεία» ─────────
 function renderContacts() {
   const all = loadPlaces(), groups = groupsOf(all);
   if (S.filter.group && groups.indexOf(S.filter.group) < 0) S.filter.group = '';
-  $('contacts-chips').innerHTML = groups.length ? ['', ...groups].map(g => '<button class="chip' + (g === S.filter.group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλες (' + all.length + ')') + '</button>').join('') : '';
+  $('contacts-chips').innerHTML = groups.length ? ['', ...groups].map(g => '<button class="chip' + (g === S.filter.group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλα (' + all.length + ')') + '</button>').join('') : '';
   $('contacts-chips').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { S.filter.group = c.dataset.g; renderContacts(); }));
   $('contacts-search').style.display = all.length > 3 ? '' : 'none';
+  $('points-hint').style.display = all.length ? '' : 'none';
   const box = $('contacts-list');
   if (!all.length) {
-    box.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><b>Εδώ αποθηκεύεις τις επαφές σου</b><br>(πελάτες, προμηθευτές, αποθήκη…) με διεύθυνση και τηλέφωνο.<br><br>Πάτα <b>«＋ Νέα επαφή»</b> παραπάνω,<br>ή <b>«☆ Σε επαφές»</b> δίπλα σε μια στάση.<br><br>Μετά τις βάζεις στη διαδρομή με ένα πάτημα από το <b>«👥 Από επαφές»</b>.</div>';
+    box.innerHTML = '<div class="empty"><div class="empty-icon">⭐</div><b>Εδώ κρατάς τα σημεία που σε ενδιαφέρουν</b><br>(πελάτες, προμηθευτές, αποθήκη…) με διεύθυνση και τηλέφωνο.<br><br>Πάτα <b>«＋ Νέο σημείο»</b> παραπάνω — μπορείς να αποθηκεύσεις και το σημείο όπου βρίσκεσαι τώρα —<br>ή <b>«☆ Αποθήκευση»</b> δίπλα σε μια στάση.<br><br>Μετά τα βρίσκεις εδώ, ή γράφοντας το όνομα όταν προσθέτεις στάση, και τα βάζεις στη διαδρομή με ένα πάτημα.</div>';
     return;
   }
   const items = matchSaved(all, S.filter.q).filter(p => !S.filter.group || (p.group || '') === S.filter.group);
-  if (!items.length) { box.innerHTML = '<div class="empty">Κανένα αποτέλεσμα.</div>'; return; }
-  box.innerHTML = items.map(p =>
-    '<div class="place-card" data-id="' + esc(p.id) + '"><div class="place-main" data-act="edit">' +
-      '<div class="place-name">' + esc(p.name) + (p.group ? '<span class="place-group">' + esc(p.group) + '</span>' : '') + '</div>' +
-      '<div class="place-addr">📍 ' + esc(p.address) + '</div>' +
+  if (!items.length) { box.innerHTML = '<div class="empty">Κανένα σημείο δεν ταιριάζει.</div>'; return; }
+  box.innerHTML = items.map(p => {
+    const d = distLabel(p);
+    return '<div class="place-card" data-id="' + esc(p.id) + '"><div class="place-main" data-act="edit">' +
+      '<div class="place-name">' + esc(p.name) + (p.group ? '<span class="place-group">' + esc(p.group) + '</span>' : '') + '<span class="place-edit">Επεξεργασία ›</span></div>' +
+      '<div class="place-addr">📍 ' + esc(p.address) + (d ? ' · ' + d : '') + '</div>' +
       (p.phone ? '<div class="place-addr">📞 ' + esc(p.phone) + '</div>' : '') +
       (p.note ? '<div class="place-addr">📝 ' + esc(p.note) + '</div>' : '') +
       (p.uses ? '<div class="place-uses">σε ' + p.uses + (p.uses === 1 ? ' διαδρομή' : ' διαδρομές') + '</div>' : '') +
-    '</div><div class="place-actions"><button class="btn-small" data-act="route">＋ Στάση</button>' +
-      (p.phone ? '<a class="btn-small" style="justify-content:center;background:var(--green-light);color:var(--green-dark)" href="' + esc(telHref(p.phone)) + '">📞 Κλήση</a>' : '') +
-    '</div></div>').join('');
+    '</div><div class="place-actions"><button class="btn-small" data-act="route">＋ Στη διαδρομή</button>' +
+      '<a class="btn-small nav" href="' + esc(navUrl(p)) + '" target="_blank" rel="noopener">🧭 Πλοήγηση</a>' +
+      (p.phone ? '<a class="btn-small call" href="' + esc(telHref(p.phone)) + '">📞 Κλήση</a>' : '') +
+    '</div></div>';
+  }).join('');
   box.querySelectorAll('.place-card').forEach(card => {
     const p = all.find(x => x.id === card.dataset.id);
     card.querySelector('[data-act=edit]').addEventListener('click', () => openContactSheet({ edit: p }));
@@ -1049,13 +1085,13 @@ function renderContacts() {
   });
 }
 $('contacts-search').addEventListener('input', e => { S.filter.q = e.target.value; renderContacts(); });
-$('btn-new-contact').addEventListener('click', () => openContactSheet({}));
+$('btn-new-contact').addEventListener('click', openNewPoint);
 $('btn-export').addEventListener('click', async () => {
   const list = loadPlaces();
-  if (!list.length) { toast('Δεν υπάρχουν επαφές για εξαγωγή'); return; }
+  if (!list.length) { toast('Δεν υπάρχουν σημεία για εξαγωγή'); return; }
   const json = JSON.stringify({ app: 'RouteAI', version: 2, places: list }, null, 1);
-  const file = new File([json], 'routeai-epafes.json', { type: 'application/json' });
-  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'RouteAI επαφές' }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  const file = new File([json], 'routeai-simeia.json', { type: 'application/json' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'RouteAI σημεία' }); return; } } catch (e) { if (e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
 });
 $('btn-import').addEventListener('click', () => $('import-file').click());
@@ -1072,8 +1108,8 @@ $('import-file').addEventListener('change', async e => {
       added++;
     });
     savePlaces(list); renderContacts(); renderStops();
-    toast('Εισήχθησαν ' + added + ' νέες επαφές');
-  } catch (err) { showAlert('Το αρχείο δεν είναι έγκυρο αρχείο επαφών RouteAI.', 'info'); }
+    toast('Εισήχθησαν ' + added + (added === 1 ? ' νέο σημείο' : ' νέα σημεία'));
+  } catch (err) { toast('⚠️ Το αρχείο δεν είναι έγκυρο αρχείο σημείων RouteAI'); }
 });
 
 // ───────── Υπολογισμός διαδρομής ─────────
@@ -1084,7 +1120,7 @@ async function buildMatrix(points) {
   for (const [a, b] of batchOrigins(n)) {
     const res = await new Promise((resolve, reject) => svc.getDistanceMatrix({
       origins: locs.slice(a, b), destinations: locs,
-      travelMode: google.maps.TravelMode[MODES[S.mode].gm], unitSystem: google.maps.UnitSystem.METRIC
+      travelMode: google.maps.TravelMode.DRIVING, unitSystem: google.maps.UnitSystem.METRIC
     }, (r, status) => status === 'OK' ? resolve(r) : reject(new Error('DM_' + status))));
     res.rows.forEach((row, ri) => row.elements.forEach((el, j) => { const i = a + ri; M[i][j] = i === j ? 0 : (el.status === 'OK' ? el.duration.value : Infinity); }));
   }
@@ -1105,7 +1141,6 @@ async function generateRoute() {
     const points = (origin ? [origin] : []).concat(stopPts);
     if (points.length < 2) throw new Error('Δεν βρέθηκε η τοποθεσία σου. Πάτα «Αλλαγή» στην αφετηρία ή πρόσθεσε 2 στάσεις (η 1η θα είναι η αφετηρία).');
     if (points.length > MAX_POINTS) throw new Error('Μέγιστο ' + MAX_POINTS + ' σημεία ανά διαδρομή.');
-    if (S.mode === 'transit' && (points.length > 2 || S.roundTrip)) throw new Error('Με ΜΜΜ το Google Maps δεν δέχεται ενδιάμεσες στάσεις. Διάλεξε Αυτοκίνητο, Με τα πόδια ή Ποδήλατο.');
 
     let order = points.map((_, i) => i), M = null, approx = null;
     if (points.length > 2 || S.roundTrip) {
@@ -1113,13 +1148,13 @@ async function generateRoute() {
       catch (e) { M = straightMatrix(points); approx = e.message; console.warn('Distance Matrix failed:', e.message); }
       order = solveOrder(M, { fixEnd: S.fixEnd, roundTrip: S.roundTrip });
       const bad = unreachableLegs(order, M, S.roundTrip);
-      if (bad.length) throw new Error('Δεν υπάρχει διαδρομή (' + MODES[S.mode].label.toLowerCase() + ') προς: ' + bad.map(([, b]) => displayName(points[b])).join(', '));
+      if (bad.length) throw new Error('Δεν υπάρχει οδική διαδρομή με αυτοκίνητο προς: ' + bad.map(([, b]) => displayName(points[b])).join(', '));
     }
     const identity = points.map((_, i) => i);
     const seq = order.map(i => points[i]);
     if (S.roundTrip) seq.push(points[0]);
     S.last = {
-      seq, mode: S.mode, links: buildMapsLinks(seq, S.mode), approx, origin: origin ? (origin.isGps ? 'gps' : 'place') : 'none', roundTrip: S.roundTrip,
+      seq, links: buildMapsLinks(seq, TRAVEL_MODE), approx, origin: origin ? (origin.isGps ? 'gps' : 'place') : 'none', roundTrip: S.roundTrip,
       total: M ? routeCost(order, M, S.roundTrip) : null,
       saved: M ? routeCost(identity, M, S.roundTrip) - routeCost(order, M, S.roundTrip) : 0
     };
@@ -1135,8 +1170,8 @@ async function generateRoute() {
 
 function renderResult() {
   const L = S.last; if (!L) return;
-  const { seq, links } = L, m = MODES[L.mode];
-  $('result-title').textContent = '✅ Βέλτιστη διαδρομή · ' + m.icon + ' ' + m.label;
+  const { seq, links } = L;
+  $('result-title').textContent = '✅ Βέλτιστη διαδρομή';
   let sub = seq.length + ' σημεία';
   if (L.total != null && isFinite(L.total)) sub += L.approx ? ' · ~' + fmtDistance(L.total) + ' σε ευθεία' : ' · συνολικά ~' + fmtDuration(L.total);
   $('result-sub').textContent = sub;
@@ -1156,7 +1191,7 @@ function renderResult() {
     const isReturn = L.roundTrip && i === seq.length - 1 && i > 0;
     let actions = '';
     if (c && c.phone) actions += '<a class="btn-small" style="background:var(--green-light);color:var(--green-dark)" href="' + esc(telHref(c.phone)) + '">📞</a>';
-    else if (!c && !p.isGps && !isReturn) actions += '<button class="btn-save-contact" data-i="' + i + '">☆ Σε επαφές</button>';
+    else if (!c && !p.isGps && !isReturn) actions += '<button class="btn-save-contact" data-i="' + i + '">☆ Αποθήκευση</button>';
     return '<div class="route-item"><div class="route-item-dot ' + cls + '">' + lbl + '</div><div class="route-item-text"><div class="route-item-name">' + esc(name) + (isReturn ? ' (επιστροφή)' : '') + '</div>' + (addr ? '<div class="route-item-addr">' + esc(addr) + '</div>' : '') + '</div>' + actions + '</div>' +
       (i < seq.length - 1 ? '<div class="route-connector"></div>' : '');
   }).join('');
@@ -1165,7 +1200,7 @@ function renderResult() {
   const ln = $('links-note');
   if (links.length > 1) { ln.textContent = 'Το Google Maps δέχεται έως ' + (MAX_URL_WAYPOINTS + 2) + ' σημεία ανά link, γι’ αυτό η διαδρομή χωρίστηκε σε ' + links.length + ' τμήματα. Άνοιξέ τα με τη σειρά.'; ln.style.display = 'block'; }
   else ln.style.display = 'none';
-  $('links-list').innerHTML = links.map((l, i) => '<a class="btn-open" href="' + esc(l.url) + '" target="_blank" rel="noopener">↗ ' + (links.length > 1 ? 'Τμήμα ' + (i + 1) + ' (σημεία ' + l.from + '–' + l.to + ')' : 'Άνοιγμα στο Google Maps') + ' · ' + m.icon + '</a>').join('');
+  $('links-list').innerHTML = links.map((l, i) => '<a class="btn-open" href="' + esc(l.url) + '" target="_blank" rel="noopener">↗ ' + (links.length > 1 ? 'Τμήμα ' + (i + 1) + ' (σημεία ' + l.from + '–' + l.to + ')' : 'Άνοιγμα στο Google Maps') + '</a>').join('');
 }
 
 function showMinimap(seq) {
@@ -1179,7 +1214,7 @@ function showMinimap(seq) {
     new google.maps.DirectionsService().route({
       origin: pt(seq[0]), destination: pt(seq[seq.length - 1]),
       waypoints: seq.slice(1, -1).map(p => ({ location: pt(p), stopover: true })),
-      travelMode: google.maps.TravelMode[MODES[S.last ? S.last.mode : S.mode].gm], optimizeWaypoints: false
+      travelMode: google.maps.TravelMode.DRIVING, optimizeWaypoints: false
     }, (res, status) => {
       if (status === 'OK') { S.renderer.setMap(S.map); S.renderer.setDirections(res); return; }
       S.renderer.setMap(null);
@@ -1213,7 +1248,7 @@ $('save-btn').addEventListener('click', () => {
   const h = loadHistory();
   h.unshift({ id: Date.now(), date: new Date().toLocaleString('el-GR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
     points: S.last.seq.map(p => ({ name: displayName(p), address: p.address || '', label: p.label, lat: p.lat, lng: p.lng, placeId: p.placeId || null, isGps: !!p.isGps })),
-    links: S.last.links.map(l => l.url), mode: S.last.mode, origin: S.last.origin, roundTrip: S.last.roundTrip });
+    links: S.last.links.map(l => l.url), mode: TRAVEL_MODE, origin: S.last.origin, roundTrip: S.last.roundTrip });
   if (h.length > 30) h.length = 30;
   const ok = Store.set('routeai-history', h);
   const b = $('save-btn');
@@ -1225,9 +1260,9 @@ function renderHistory() {
   if (!h.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div><b>Δεν υπάρχει ιστορικό</b><br>Δημιούργησε μια διαδρομή και πάτα «Αποθήκευση στο ιστορικό».</div>'; return; }
   c.innerHTML = h.map(e => {
     const names = e.points ? e.points.map(p => p.name || p.label) : (e.labels || e.stops || []);
-    const links = e.links || (e.url ? [e.url] : []);
-    const m = MODES[e.mode] || MODES.driving;
-    return '<div class="history-item" data-id="' + e.id + '"><div class="history-item-header"><div class="history-item-title">' + m.icon + ' ' + esc(names[0] || '') + ' → ' + esc(names[names.length - 1] || '') + '</div><div class="history-item-date">' + esc(e.date || '') + '</div></div>' +
+    // Παλιές διαδρομές με άλλο μέσο: το link ξαναφτιάχνεται για αυτοκίνητο
+    const links = (e.links || (e.url ? [e.url] : [])).map(u => String(u).replace(/([?&]travelmode=)(walking|bicycling|transit)\b/, '$1driving'));
+    return '<div class="history-item" data-id="' + e.id + '"><div class="history-item-header"><div class="history-item-title">🚗 ' + esc(names[0] || '') + ' → ' + esc(names[names.length - 1] || '') + '</div><div class="history-item-date">' + esc(e.date || '') + '</div></div>' +
       '<div class="history-item-stops">' + names.map(esc).join(' → ') + '</div><div class="history-item-actions">' +
       (e.points ? '<button class="btn-history" data-act="load">↺ Ξανά στη διαδρομή</button>' : '') +
       links.map((u, i) => '<a class="btn-history" href="' + esc(u) + '" target="_blank" rel="noopener">↗ ' + (links.length > 1 ? 'Τμήμα ' + (i + 1) : 'Google Maps') + '</a>').join('') +
@@ -1243,7 +1278,6 @@ function renderHistory() {
       if (pts[0] && pts[0].isGps) { pts.shift(); S.origin = { type: 'gps' }; }
       else if (e.origin === 'place' && pts.length) { S.origin = { type: 'place', place: pts.shift() }; }
       S.stops = []; pts.forEach(p => addPlaceAsStop(p));
-      if (MODES[e.mode]) { S.mode = e.mode; saveSettings(); renderModes(); }
       invalidateResult(); renderOrigin(); renderStops(); switchTab('route');
       toast('Φορτώθηκαν ' + S.stops.length + ' στάσεις');
     });
@@ -1260,11 +1294,10 @@ function switchTab(tab) {
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
-document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
 document.querySelectorAll('.toggle-row').forEach(r => r.addEventListener('click', () => {
   const k = r.dataset.opt; S[k] = !S[k];
   if (S[k]) S[k === 'fixEnd' ? 'roundTrip' : 'fixEnd'] = false;
-  saveSettings(); renderModes(); invalidateResult();
+  saveSettings(); renderOptions(); invalidateResult();
 }));
 $('btn-add-stop').addEventListener('click', () => openStopSearch(null));
 $('btn-pick-saved').addEventListener('click', openPicker);
@@ -1290,8 +1323,9 @@ $('btn-banner-x').addEventListener('click', () => { $('install-banner').classLis
 if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && !window.navigator.standalone && !matchMedia('(display-mode: standalone)').matches && !Store.get('routeai-banner-off', false))
   $('install-banner').classList.add('visible');
 
-loadSettings(); renderModes();
+loadSettings(); renderOptions();
 loadDraft();
+if (loadPlaces().length) requestPersist();
 renderOrigin(); renderStops();
 getGPSLocation();
 </script>
