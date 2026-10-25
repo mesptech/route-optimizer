@@ -598,11 +598,17 @@ const Geo = {
   },
   async details(s) {
     if (s.pred) {
-      const place = s.pred.toPlace();
-      await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
-      this.token = null;
-      const ll = llOf(place.location);
-      return mkPlace(place.id || s.id, place.displayName || s.main, place.formattedAddress || s.secondary, ll.lat, ll.lng);
+      try {
+        const place = s.pred.toPlace();
+        // Μόνο διεύθυνση + θέση (κατηγορία Essentials, φθηνότερη) — το όνομα το έχουμε ήδη από την πρόταση
+        await place.fetchFields({ fields: ['formattedAddress', 'location'] });
+        this.token = null;
+        const ll = llOf(place.location);
+        return mkPlace(place.id || s.id, s.main, place.formattedAddress || s.secondary, ll.lat, ll.lng);
+      } catch (e) {
+        this.token = null;
+        console.warn('Place details (New) failed, using Geocoding:', e && e.message);   // εφεδρεία παρακάτω
+      }
     }
     const r = await geocodeRaw({ placeId: s.id });
     this.ltoken = null;
