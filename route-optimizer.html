@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="RouteAI">
-<meta name="theme-color" content="#007AFF">
+<meta name="theme-color" content="#F2F2F7">
 <link rel="apple-touch-icon" href="https://em-content.zobj.net/source/apple/354/world-map_1f5fa-fe0f.png">
 <title>RouteAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,705 +15,1281 @@
   :root {
     --bg: #F2F2F7; --card: #FFFFFF; --border: rgba(0,0,0,0.08);
     --accent: #007AFF; --accent-light: #E8F1FF; --accent-dark: #0056CC;
-    --green: #34C759; --green-light: #E8F8ED;
-    --red: #FF3B30; --orange: #FF9500;
+    --green: #34C759; --green-dark: #1E8E3E; --green-light: #E8F8ED;
+    --red: #FF3B30; --orange: #FF9500; --orange-light: #FFF4E5; --orange-dark: #8A5200;
     --text: #1C1C1E; --text2: #3C3C43; --text3: #6C6C70; --text4: #AEAEB2;
     --shadow: 0 2px 20px rgba(0,0,0,0.08);
     --radius: 16px; --radius-sm: 10px;
   }
-  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; min-height: 100vh; padding-bottom: 100px; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; min-height: 100vh; padding-bottom: calc(40px + env(safe-area-inset-bottom)); }
+  body.noscroll { overflow: hidden; }
+  button, input, textarea { font-family: inherit; }
 
-  .app-header { background: rgba(242,242,247,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 56px 20px 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
-  .app-header-inner { max-width: 500px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; }
+  .app-header { background: rgba(242,242,247,0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: max(10px, env(safe-area-inset-top)) 16px 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+  .app-header-inner { max-width: 520px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 8px 0 8px; }
   .app-title { display: flex; align-items: center; gap: 10px; }
-  .app-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(0,122,255,0.3); }
+  .app-icon { width: 34px; height: 34px; background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
   .app-name { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-
-  /* Voice button */
-  .voice-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-light); border: none; color: var(--accent); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-  .voice-btn.listening { background: var(--red); color: white; animation: pulse 1s infinite; }
-  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-  .tab-bar { max-width: 500px; margin: 0 auto; display: flex; }
-  .tab-btn { flex: 1; background: none; border: none; border-bottom: 2px solid transparent; padding: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--text3); cursor: pointer; transition: all 0.2s; }
+  .voice-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-light); border: none; color: var(--accent); font-size: 18px; cursor: pointer; }
+  .voice-btn.listening, .sp-mic.active { background: var(--red); color: white; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+  .tab-bar { max-width: 520px; margin: 0 auto; display: flex; }
+  .tab-btn { flex: 1; background: none; border: none; border-bottom: 2.5px solid transparent; padding: 10px 4px; font-size: 14px; font-weight: 600; color: var(--text3); cursor: pointer; }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  .content { max-width: 500px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-  .tab-content { display: none; flex-direction: column; gap: 16px; }
+  .content { max-width: 520px; margin: 0 auto; padding: 14px 14px; display: flex; flex-direction: column; gap: 14px; }
+  .tab-content { display: none; flex-direction: column; gap: 14px; }
   .tab-content.active { display: flex; }
-
-  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
-  .card-header { padding: 16px 16px 0; display: flex; align-items: center; gap: 8px; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .card-header { padding: 14px 16px 10px; display: flex; align-items: center; gap: 8px; }
   .card-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: var(--accent-light); }
-  .card-title { font-size: 13px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; flex: 1; }
+  .link-btn { background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
+  .link-btn.danger { color: var(--red); }
 
-  /* GPS origin row */
-  .origin-row { display: flex; align-items: center; padding: 12px 16px; gap: 12px; border-bottom: 1px solid var(--border); }
-  .origin-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); border: 2px solid white; box-shadow: 0 0 0 2px var(--green); flex-shrink: 0; }
-  .origin-info { flex: 1; }
-  .origin-label { font-size: 12px; color: var(--text3); font-weight: 500; }
-  .origin-value { font-size: 14px; color: var(--text); font-weight: 600; margin-top: 1px; }
-  .origin-value.loading { color: var(--text4); }
-  .btn-refresh-gps { background: none; border: none; color: var(--accent); font-size: 16px; cursor: pointer; padding: 4px; }
+  .sys-alert { display: none; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 13px; line-height: 1.5; font-weight: 500; }
+  .sys-alert.visible { display: block; }
+  .sys-alert.error { background: #FFF0EF; color: #B3261E; border: 1px solid rgba(255,59,48,0.25); }
+  .sys-alert.info { background: var(--accent-light); color: var(--accent-dark); border: 1px solid rgba(0,122,255,0.2); }
 
-  /* Stop rows */
-  .stops-list { padding: 8px 0 4px; }
-  .stop-row { display: flex; align-items: center; padding: 4px 16px; gap: 12px; animation: slideIn 0.25s ease; }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-  .stop-indicator { display: flex; flex-direction: column; align-items: center; width: 20px; flex-shrink: 0; }
-  .stop-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid white; box-shadow: 0 0 0 2px var(--accent); }
-  .stop-dot.last { background: var(--red); box-shadow: 0 0 0 2px var(--red); }
-  .stop-line { width: 2px; height: 8px; background: rgba(0,122,255,0.2); border-radius: 2px; margin: 2px 0; }
+  .install-banner { background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: var(--radius); padding: 12px 14px; color: white; display: none; align-items: center; gap: 10px; }
+  .install-banner.visible { display: flex; }
+  .btn-install { background: white; color: var(--accent); border: none; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .banner-x { background: none; border: none; color: white; opacity: .8; font-size: 16px; cursor: pointer; padding: 4px; }
 
-  .stop-input-wrap { flex: 1; position: relative; }
-  .stop-input { width: 100%; background: var(--bg); border: 1.5px solid transparent; border-radius: var(--radius-sm); padding: 11px 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; color: var(--text); outline: none; transition: all 0.2s; }
-  .stop-input::placeholder { color: var(--text4); }
-  .stop-input:focus { border-color: var(--accent); background: white; box-shadow: 0 0 0 3px rgba(0,122,255,0.12); }
-  .stop-input.confirmed { border-color: var(--green); background: var(--green-light); }
+  /* Αφετηρία */
+  .origin-row { display: flex; align-items: center; padding: 10px 14px 12px 16px; gap: 12px; border-top: 1px solid var(--border); }
+  .origin-dot { width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .origin-info { flex: 1; min-width: 0; }
+  .origin-label { font-size: 12px; color: var(--text3); font-weight: 600; }
+  .origin-value { font-size: 14px; color: var(--text); font-weight: 600; margin-top: 1px; line-height: 1.35; }
+  .origin-value.muted { color: var(--text4); font-weight: 500; }
+  .btn-small { background: var(--accent-light); color: var(--accent); border: none; border-radius: 8px; padding: 7px 10px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+  .btn-icon { background: none; border: none; font-size: 16px; cursor: pointer; padding: 4px; }
 
-  /* Voice indicator on input */
-  .stop-input.voice-active { border-color: var(--red); background: #FFF0EF; animation: voicePulse 0.8s infinite; }
-  @keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 3px rgba(255,59,48,0.1); } 50% { box-shadow: 0 0 0 6px rgba(255,59,48,0.2); } }
+  /* Στάσεις */
+  .stops-empty { padding: 14px 16px; font-size: 14px; color: var(--text3); line-height: 1.5; border-top: 1px solid var(--border); }
+  .stop-card { display: flex; gap: 12px; align-items: flex-start; padding: 12px 12px 12px 16px; border-top: 1px solid var(--border); }
+  .stop-num { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .stop-num.last { background: var(--red); }
+  .stop-text { flex: 1; min-width: 0; cursor: pointer; }
+  .stop-name { font-size: 15px; font-weight: 700; line-height: 1.3; word-break: break-word; }
+  .stop-addr { font-size: 13px; color: var(--text2); line-height: 1.35; margin-top: 2px; word-break: break-word; }
+  .stop-meta { font-size: 12px; color: var(--green-dark); font-weight: 600; margin-top: 4px; }
+  .badge-contact { display: inline-block; font-size: 11px; font-weight: 700; background: var(--orange-light); color: var(--orange-dark); padding: 2px 7px; border-radius: 10px; white-space: nowrap; vertical-align: 1px; }
+  .stop-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .btn-save-contact { background: var(--orange-light); color: var(--orange-dark); border: none; border-radius: 8px; padding: 6px 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .row-btn { background: none; border: none; color: var(--text4); cursor: pointer; padding: 4px 6px; font-size: 17px; line-height: 1; }
+  .add-row { display: flex; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--border); }
+  .btn-add-stop { flex: 1.25; background: var(--accent); color: white; border: none; border-radius: 12px; padding: 14px 8px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-from-contacts { flex: 1; background: var(--orange-light); color: var(--orange-dark); border: none; border-radius: 12px; padding: 14px 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
 
-  .btn-mic { background: none; border: none; color: var(--text4); cursor: pointer; padding: 6px; font-size: 16px; flex-shrink: 0; transition: all 0.2s; }
-  .btn-mic.active { color: var(--red); }
-  .btn-remove { background: none; border: none; color: var(--text4); cursor: pointer; padding: 6px; border-radius: 50%; font-size: 16px; flex-shrink: 0; }
-  .btn-remove:active { background: rgba(255,59,48,0.1); color: var(--red); }
+  #stops-map { height: 230px; background: #E5E5EA; }
+  .map-hint { font-size: 12px; color: var(--text3); padding: 8px 16px 12px; line-height: 1.4; }
 
-  .card-footer { padding: 8px 16px 16px; display: flex; gap: 8px; }
-  .btn-add { flex: 1; background: var(--accent-light); color: var(--accent); border: none; border-radius: var(--radius-sm); padding: 11px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .btn-add:active { background: rgba(0,122,255,0.2); }
-  .btn-clear { background: rgba(255,59,48,0.1); color: var(--red); border: none; border-radius: var(--radius-sm); padding: 11px 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
-
-  .error-msg { color: var(--red); font-size: 13px; padding: 0 16px 12px; display: none; }
-
-  /* Voice status banner */
-  .voice-status { background: rgba(255,59,48,0.08); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; color: var(--red); font-weight: 500; display: none; align-items: center; gap: 8px; margin: 0 16px 8px; }
-  .voice-status.visible { display: flex; }
-  .voice-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1s infinite; }
-
-  /* Options */
-  .options-section { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 14px; }
-  .mode-label { font-size: 13px; font-weight: 600; color: var(--text3); margin-bottom: 8px; }
-  .mode-pills { display: flex; background: var(--bg); border-radius: var(--radius-sm); padding: 3px; gap: 2px; }
-  .mode-pill { flex: 1; background: none; border: none; border-radius: 8px; padding: 8px 4px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600; color: var(--text3); cursor: pointer; transition: all 0.2s; text-align: center; }
-  .mode-pill.active { background: white; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-
+  /* Μέσο μεταφοράς */
+  .options-section { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .seg-btn { background: var(--bg); border: 2px solid transparent; border-radius: 12px; padding: 8px 2px 7px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: var(--text2); }
+  .seg-ico { font-size: 22px; line-height: 1.1; }
+  .seg-btn.active { background: var(--accent-light); border-color: var(--accent); color: var(--accent-dark); }
+  .mode-hint { font-size: 12px; color: var(--orange-dark); background: var(--orange-light); border-radius: 8px; padding: 8px 10px; line-height: 1.4; display: none; }
   .toggles { display: flex; flex-direction: column; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
-  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; background: white; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: white; border-bottom: 1px solid var(--border); cursor: pointer; gap: 12px; }
   .toggle-row:last-child { border-bottom: none; }
-  .toggle-label { font-size: 14px; color: var(--text); font-weight: 500; }
+  .toggle-label { font-size: 14px; font-weight: 500; }
   .toggle-switch { width: 44px; height: 26px; background: var(--text4); border-radius: 13px; position: relative; transition: background 0.2s; flex-shrink: 0; }
   .toggle-switch.on { background: var(--green); }
   .toggle-switch::after { content: ''; position: absolute; width: 22px; height: 22px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
   .toggle-switch.on::after { transform: translateX(18px); }
 
-  .btn-generate { width: 100%; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; border: none; border-radius: var(--radius); padding: 18px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,122,255,0.35); letter-spacing: -0.2px; }
-  .btn-generate:active { transform: scale(0.98); }
+  .btn-generate { width: 100%; background: linear-gradient(135deg, #007AFF, #5856D6); color: white; border: none; border-radius: var(--radius); padding: 17px 12px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,122,255,0.35); }
   .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 20px; color: var(--accent); font-size: 15px; font-weight: 500; }
+  .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 10px; color: var(--accent); font-size: 15px; font-weight: 500; }
   .loading.visible { display: flex; }
-  .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(0,122,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(0,122,255,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  .spinner.sm { width: 16px; height: 16px; border-width: 2px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .result-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); display: none; overflow: hidden; }
-  .result-card.visible { display: block; animation: slideIn 0.3s ease; }
-  .result-header { background: linear-gradient(135deg, #007AFF, #5856D6); padding: 20px; color: white; }
-  .result-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
-  .result-sub { font-size: 13px; opacity: 0.8; }
-  .savings-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; margin-top: 8px; }
-
-  #minimap { width: 100%; height: 200px; }
-
-  .route-list { padding: 16px; }
-  .route-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
-  .route-item-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+  /* Αποτέλεσμα */
+  .result-card { display: none; }
+  .result-card.visible { display: block; }
+  .result-header { background: linear-gradient(135deg, #007AFF, #5856D6); padding: 18px 20px; color: white; }
+  .result-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .result-sub { font-size: 13px; opacity: 0.92; }
+  .savings-badge { display: inline-flex; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+  .approx-note { background: var(--orange-light); color: var(--orange-dark); font-size: 12px; line-height: 1.5; padding: 10px 16px; display: none; }
+  #minimap { width: 100%; height: 230px; background: #E5E5EA; }
+  .route-list { padding: 10px 16px; }
+  .route-item { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+  .route-item-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
   .route-item-dot.start { background: var(--green); }
   .route-item-dot.end { background: var(--red); }
   .route-item-dot.mid { background: var(--accent); }
-  .route-item-name { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.3; }
-  .route-connector { width: 2px; height: 20px; background: var(--border); margin-left: 15px; border-radius: 2px; }
-
+  .route-item-text { flex: 1; min-width: 0; }
+  .route-item-name { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .route-item-addr { font-size: 12px; color: var(--text3); line-height: 1.3; }
+  .route-connector { width: 2px; height: 8px; background: var(--border); margin-left: 14px; }
   .result-actions { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
-  .btn-open { background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); padding: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; display: block; text-align: center; }
+  .links-note { font-size: 12px; color: var(--text3); line-height: 1.5; padding-top: 12px; }
+  .btn-open { background: var(--accent); color: white; border-radius: var(--radius-sm); padding: 14px; font-size: 15px; font-weight: 700; text-decoration: none; display: block; text-align: center; }
   .share-row { display: flex; gap: 8px; }
-  .btn-share { flex: 1; border: none; border-radius: var(--radius-sm); padding: 13px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-share, .btn-copy { flex: 1; border: none; border-radius: var(--radius-sm); padding: 13px 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .btn-whatsapp { background: #25D366; color: white; }
   .btn-viber { background: #7360F2; color: white; }
-  .btn-copy { background: var(--bg); color: var(--text2); border: none; border-radius: var(--radius-sm); padding: 13px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn-copy.copied { background: var(--green-light); color: var(--green); }
-  .btn-save-fav { width: 100%; background: rgba(255,149,0,0.12); color: var(--orange); border: none; border-radius: var(--radius-sm); padding: 13px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn-copy { background: var(--bg); color: var(--text2); }
+  .btn-copy.copied { background: var(--green-light); color: var(--green-dark); }
+  .btn-save-history { width: 100%; background: var(--bg); color: var(--text2); border: none; border-radius: var(--radius-sm); padding: 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .divider { height: 1px; background: var(--border); margin: 0 16px; }
 
-  /* History */
-  .history-empty { text-align: center; padding: 48px 20px; color: var(--text3); }
-  .history-empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .history-empty-text { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .history-item { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin-bottom: 12px; }
-  .history-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  /* Επαφές */
+  .btn-new-contact { width: 100%; background: var(--accent); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .text-input { width: 100%; background: white; border: 1.5px solid transparent; border-radius: var(--radius-sm); padding: 11px 12px; font-size: 16px; color: var(--text); outline: none; box-shadow: var(--shadow); }
+  .text-input:focus { border-color: var(--accent); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+  .chip { flex-shrink: 0; background: white; border: 1px solid var(--border); border-radius: 16px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .place-card { background: white; border-radius: 14px; box-shadow: var(--shadow); padding: 12px 12px 12px 14px; display: flex; gap: 10px; align-items: center; }
+  .place-main { flex: 1; min-width: 0; cursor: pointer; }
+  .place-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .place-addr { font-size: 12px; color: var(--text3); line-height: 1.4; margin-top: 2px; word-break: break-word; }
+  .place-group { font-size: 11px; font-weight: 600; background: var(--accent-light); color: var(--accent-dark); padding: 2px 8px; border-radius: 10px; }
+  .place-uses { font-size: 11px; color: var(--text4); margin-top: 2px; }
+  .place-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; align-items: stretch; }
+  .empty { text-align: center; padding: 30px 16px; color: var(--text3); font-size: 14px; line-height: 1.6; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+  .empty-icon { font-size: 40px; margin-bottom: 6px; }
+  .muted-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* Ιστορικό */
+  .history-item { background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px 16px; }
+  .history-item-header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
   .history-item-title { font-size: 14px; font-weight: 700; }
-  .history-item-date { font-size: 12px; color: var(--text4); }
+  .history-item-date { font-size: 12px; color: var(--text4); white-space: nowrap; }
   .history-item-stops { font-size: 13px; color: var(--text3); line-height: 1.5; }
-  .history-item-actions { display: flex; gap: 8px; margin-top: 12px; }
-  .btn-history-load { flex: 1; background: var(--accent-light); color: var(--accent); border: none; border-radius: 8px; padding: 8px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-history-del { background: rgba(255,59,48,0.1); color: var(--red); border: none; border-radius: 8px; padding: 8px 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .history-item-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .btn-history { flex: 1; background: var(--accent-light); color: var(--accent); border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none; white-space: nowrap; }
+  .btn-history-del { background: rgba(255,59,48,0.1); color: var(--red); border: none; border-radius: 8px; padding: 9px 12px; font-size: 13px; cursor: pointer; }
 
-  .install-banner { background: linear-gradient(135deg, #007AFF, #5856D6); border-radius: var(--radius); padding: 16px; color: white; display: none; }
-  .install-banner.visible { display: block; }
-  .install-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .install-sub { font-size: 13px; opacity: 0.85; margin-bottom: 12px; }
-  .btn-install { background: white; color: var(--accent); border: none; border-radius: 8px; padding: 10px 20px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+  /* Οθόνη αναζήτησης (πλήρης οθόνη, πάνω από το πληκτρολόγιο) */
+  .search-panel { position: fixed; left: 0; right: 0; top: 0; height: 100%; z-index: 1500; background: var(--bg); display: none; flex-direction: column; }
+  .search-panel.open { display: flex; }
+  .sp-head { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top)) 10px 8px; background: white; border-bottom: 1px solid var(--border); }
+  .sp-back { background: none; border: none; font-size: 15px; font-weight: 600; color: var(--accent); padding: 8px 6px; cursor: pointer; white-space: nowrap; }
+  .sp-input { flex: 1; min-width: 0; background: var(--bg); border: 1.5px solid var(--accent); border-radius: 12px; padding: 10px 12px; font-size: 16px; color: var(--text); outline: none; -webkit-appearance: none; }
+  .sp-mic { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-light); border: none; font-size: 17px; cursor: pointer; flex-shrink: 0; }
+  .sp-title { font-size: 12px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .5px; padding: 10px 16px 2px; }
+  .sp-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 24px; }
+  .res-head { font-size: 12px; font-weight: 700; color: var(--text3); padding: 12px 16px 6px; text-transform: uppercase; letter-spacing: .4px; }
+  .res-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px 11px 16px; background: white; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .res-item:active { background: #EDEDF2; }
+  .res-item.loading { opacity: .45; }
+  .res-ico { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .res-ico.contact { background: var(--orange-light); }
+  .res-ico.gps { background: var(--green-light); }
+  .res-ico.recent { background: #EDEDF2; }
+  .res-text { flex: 1; min-width: 0; }
+  .res-name { font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word; }
+  .res-sub { font-size: 13px; color: var(--text3); line-height: 1.35; margin-top: 1px; word-break: break-word; }
+  .res-dist { font-size: 12px; color: var(--text3); font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+  .res-note { padding: 16px; font-size: 14px; color: var(--text3); line-height: 1.5; display: flex; gap: 10px; align-items: center; }
+  .res-note.err { color: #B3261E; }
+  .res-foot { font-size: 11px; color: var(--text4); text-align: right; padding: 6px 16px; }
 
-  /* pac overrides */
-  .pac-container { background: white !important; border: none !important; border-radius: 14px !important; box-shadow: 0 8px 40px rgba(0,0,0,0.15) !important; overflow: hidden !important; margin-top: 4px !important; font-family: 'Plus Jakarta Sans', sans-serif !important; z-index: 9999 !important; }
-  .pac-item { padding: 12px 16px !important; font-size: 14px !important; color: var(--text2) !important; border-top: 1px solid rgba(0,0,0,0.06) !important; cursor: pointer !important; }
-  .pac-item:first-child { border-top: none !important; }
-  .pac-item:hover { background: var(--bg) !important; }
-  .pac-item-query { color: var(--text) !important; font-weight: 600 !important; }
-  .pac-matched { color: var(--accent) !important; }
-  .pac-icon { display: none !important; }
-  .pac-logo:after { display: none !important; }
+  /* Bottom sheet */
+  .sheet-backdrop { position: fixed; left: 0; right: 0; top: 0; height: 100%; background: rgba(0,0,0,0.35); z-index: 1000; display: none; align-items: flex-end; justify-content: center; }
+  .sheet-backdrop.open { display: flex; }
+  .sheet { background: var(--bg); width: 100%; max-width: 540px; max-height: 92%; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); animation: up .2s ease; }
+  @keyframes up { from { transform: translateY(30px); opacity: .6; } to { transform: none; opacity: 1; } }
+  .sheet-head { padding: 14px 16px 8px; display: flex; align-items: center; gap: 8px; }
+  .sheet-title { font-size: 17px; font-weight: 700; flex: 1; }
+  .sheet-close { background: rgba(0,0,0,0.06); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; cursor: pointer; color: var(--text2); }
+  .sheet-body { padding: 4px 16px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .sheet-foot { padding: 10px 16px 14px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
+  .field-label { font-size: 12px; font-weight: 700; color: var(--text3); margin-bottom: 5px; }
+  .addr-pick { width: 100%; text-align: left; background: white; border: 1.5px solid transparent; border-radius: var(--radius-sm); padding: 12px; font-size: 15px; color: var(--text); cursor: pointer; display: flex; gap: 8px; justify-content: space-between; align-items: center; line-height: 1.4; box-shadow: var(--shadow); }
+  .addr-pick.empty-addr { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .addr-change { color: var(--accent); font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .btn-primary { flex: 1; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .btn-primary:disabled { opacity: .4; }
+  .btn-secondary { background: white; color: var(--text2); border: none; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .btn-danger { background: rgba(255,59,48,0.1); color: var(--red); border: none; border-radius: var(--radius-sm); padding: 13px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .pick-row { background: white; border-radius: 12px; padding: 11px 12px; display: flex; gap: 12px; align-items: center; cursor: pointer; }
+  .pick-row.on { box-shadow: inset 0 0 0 2px var(--accent); }
+  .pick-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text4); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 700; }
+  .pick-row.on .pick-check { background: var(--accent); border-color: var(--accent); }
+  .pick-row.in-route { opacity: .5; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: rgba(28,28,30,0.92); color: white; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 90vw; text-align: center; }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
 <div class="app-header">
   <div class="app-header-inner">
-    <div class="app-title">
-      <div class="app-icon">🗺️</div>
-      <span class="app-name">RouteAI</span>
-    </div>
-    <button class="voice-btn" id="global-voice-btn" onclick="toggleGlobalVoice()" title="Φωνητική εντολή">🎤</button>
+    <div class="app-title"><div class="app-icon">🗺️</div><span class="app-name">RouteAI</span></div>
+    <button class="voice-btn" id="global-voice-btn" title="Πρόσθεσε στάση με φωνή">🎤</button>
   </div>
   <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('route')">🗺️ Διαδρομή</button>
-    <button class="tab-btn" onclick="switchTab('history')">🕐 Ιστορικό</button>
+    <button class="tab-btn active" data-tab="route">🗺️ Διαδρομή</button>
+    <button class="tab-btn" data-tab="contacts">👥 Επαφές</button>
+    <button class="tab-btn" data-tab="history">🕐 Ιστορικό</button>
   </div>
 </div>
 
 <div class="content">
+  <div class="sys-alert" id="sys-alert"></div>
 
   <div class="install-banner" id="install-banner">
-    <div class="install-title">📱 Πρόσθεσε στην αρχική οθόνη</div>
-    <div class="install-sub">Άνοιξε το RouteAI σαν native app!</div>
-    <button class="btn-install" onclick="showInstallInstructions()">Πώς να το κάνω</button>
+    <div style="flex:1;font-size:13px;line-height:1.4"><b>📱 Πρόσθεσέ το στην αρχική οθόνη</b><br>για να ανοίγει σαν εφαρμογή.</div>
+    <button class="btn-install" id="btn-install">Πώς;</button>
+    <button class="banner-x" id="btn-banner-x" title="Κλείσιμο">✕</button>
   </div>
 
+  <!-- ΔΙΑΔΡΟΜΗ -->
   <div class="tab-content active" id="tab-route">
-
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon">📍</div>
-        <span class="card-title">Στάσεις</span>
-      </div>
-
-      <!-- GPS Origin -->
+      <div class="card-header"><div class="card-icon">📍</div><span class="card-title" id="stops-title">Στάσεις</span><button class="link-btn danger" id="btn-clear" style="display:none">Καθαρισμός</button></div>
       <div class="origin-row">
-        <div class="origin-dot"></div>
+        <div class="origin-dot">Α</div>
         <div class="origin-info">
-          <div class="origin-label">Αφετηρία (τοποθεσία μου)</div>
-          <div class="origin-value loading" id="origin-value">Εντοπισμός τοποθεσίας...</div>
+          <div class="origin-label" id="origin-label">Αφετηρία · η τοποθεσία μου</div>
+          <div class="origin-value muted" id="origin-value">Εντοπισμός τοποθεσίας...</div>
         </div>
-        <button class="btn-refresh-gps" onclick="getGPSLocation()" title="Ανανέωση">🔄</button>
+        <button class="btn-icon" id="btn-gps-refresh" title="Ανανέωση τοποθεσίας">🔄</button>
+        <button class="btn-small" id="btn-origin">Αλλαγή</button>
       </div>
+      <div id="stops-list"></div>
+      <div class="add-row">
+        <button class="btn-add-stop" id="btn-add-stop">＋ Προσθήκη στάσης</button>
+        <button class="btn-from-contacts" id="btn-pick-saved">👥 Από επαφές</button>
+      </div>
+    </div>
 
-      <!-- Voice status -->
-      <div class="voice-status" id="voice-status">
-        <div class="voice-dot"></div>
-        <span id="voice-status-text">Μίλα τώρα...</span>
-      </div>
-
-      <div class="stops-list" id="stops-list"></div>
-      <div class="error-msg" id="error-msg">Πρόσθεσε τουλάχιστον 1 στάση.</div>
-      <div class="card-footer">
-        <button class="btn-add" onclick="addStop()"><span style="font-size:18px">+</span> Προσθήκη στάσης</button>
-        <button class="btn-clear" onclick="clearAll()">Καθαρισμός</button>
-      </div>
+    <div class="card" id="map-card" style="display:none">
+      <div class="card-header"><div class="card-icon">🗺️</div><span class="card-title">Έλεγχος στον χάρτη</span></div>
+      <div id="stops-map"></div>
+      <div class="map-hint">Α = αφετηρία, αριθμοί = στάσεις. Αν μια πινέζα είναι σε λάθος σημείο, πάτα τη στάση στη λίστα για να την αλλάξεις.</div>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon">⚙️</div>
-        <span class="card-title">Επιλογές</span>
-      </div>
+      <div class="card-header"><div class="card-icon">⚙️</div><span class="card-title">Πώς θα κινηθείς;</span></div>
       <div class="options-section">
-        <div>
-          <div class="mode-label">Μέσο μεταφοράς</div>
-          <div class="mode-pills">
-            <button class="mode-pill active" id="mode-driving" onclick="setMode('driving')">🚗 Αυτοκίνητο</button>
-            <button class="mode-pill" id="mode-walking" onclick="setMode('walking')">🚶 Πεζή</button>
-            <button class="mode-pill" id="mode-transit" onclick="setMode('transit')">🚌 ΜΜΜ</button>
-            <button class="mode-pill" id="mode-bicycling" onclick="setMode('bicycling')">🚴 Ποδήλατο</button>
-          </div>
+        <div class="seg">
+          <button class="seg-btn" data-mode="driving"><span class="seg-ico">🚗</span>Αυτοκίνητο</button>
+          <button class="seg-btn" data-mode="walking"><span class="seg-ico">🚶</span>Με τα πόδια</button>
+          <button class="seg-btn" data-mode="bicycling"><span class="seg-ico">🚴</span>Ποδήλατο</button>
+          <button class="seg-btn" data-mode="transit"><span class="seg-ico">🚌</span>ΜΜΜ</button>
         </div>
+        <div class="mode-hint" id="mode-hint">Με ΜΜΜ το Google Maps δέχεται μόνο έναν προορισμό, όχι ενδιάμεσες στάσεις.</div>
         <div class="toggles">
-          <div class="toggle-row" onclick="toggleOpt('fix-end')">
-            <span class="toggle-label">Σταθερός προορισμός (τελευταία στάση)</span>
-            <div class="toggle-switch" id="toggle-fix-end"></div>
-            <input type="checkbox" id="fix-end" style="display:none">
-          </div>
-          <div class="toggle-row" onclick="toggleOpt('round-trip')">
-            <span class="toggle-label">Επιστροφή στην αφετηρία</span>
-            <div class="toggle-switch" id="toggle-round-trip"></div>
-            <input type="checkbox" id="round-trip" style="display:none">
-          </div>
+          <div class="toggle-row" data-opt="fixEnd"><span class="toggle-label">Η τελευταία στάση είναι ο τελικός προορισμός</span><div class="toggle-switch" id="toggle-fixEnd"></div></div>
+          <div class="toggle-row" data-opt="roundTrip"><span class="toggle-label">Επιστροφή στην αφετηρία</span><div class="toggle-switch" id="toggle-roundTrip"></div></div>
         </div>
       </div>
     </div>
 
-    <button class="btn-generate" id="generate-btn" onclick="generateRoute()">⚡ Εύρεση βέλτιστης διαδρομής</button>
+    <button class="btn-generate" id="generate-btn">⚡ Βέλτιστη διαδρομή</button>
+    <div class="loading" id="loading"><div class="spinner"></div><span id="loading-text">Υπολογισμός...</span></div>
 
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <span>Υπολογισμός βέλτιστης διαδρομής...</span>
-    </div>
-
-    <div class="result-card" id="result-card">
+    <div class="card result-card" id="result-card">
       <div class="result-header">
-        <div class="result-title">✅ Βέλτιστη διαδρομή</div>
+        <div class="result-title" id="result-title">✅ Βέλτιστη διαδρομή</div>
         <div class="result-sub" id="result-sub"></div>
         <div class="savings-badge" id="savings-badge" style="display:none"></div>
       </div>
+      <div class="approx-note" id="approx-note"></div>
       <div id="minimap"></div>
       <div class="route-list" id="route-list"></div>
       <div class="divider"></div>
       <div class="result-actions">
-        <a class="btn-open" id="open-btn" href="#" target="_blank">↗ Άνοιγμα στο Google Maps</a>
+        <div class="links-note" id="links-note" style="display:none"></div>
+        <div id="links-list" style="display:flex;flex-direction:column;gap:8px"></div>
         <div class="share-row">
-          <button class="btn-share btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
-          <button class="btn-share btn-viber" onclick="shareViber()">📱 Viber</button>
-          <button class="btn-copy" id="copy-btn" onclick="copyLink()">📋 Αντιγραφή</button>
+          <button class="btn-share btn-whatsapp" id="btn-wa">💬 WhatsApp</button>
+          <button class="btn-share btn-viber" id="btn-viber">📱 Viber</button>
+          <button class="btn-copy" id="copy-btn">📋 Αντιγραφή</button>
         </div>
-        <button class="btn-save-fav" onclick="saveToHistory()">⭐ Αποθήκευση στο ιστορικό</button>
+        <button class="btn-save-history" id="save-btn">🕐 Αποθήκευση στο ιστορικό</button>
       </div>
     </div>
-
   </div>
 
-  <div class="tab-content" id="tab-history">
-    <div id="history-container"></div>
+  <!-- ΕΠΑΦΕΣ -->
+  <div class="tab-content" id="tab-contacts">
+    <button class="btn-new-contact" id="btn-new-contact">＋ Νέα επαφή</button>
+    <input class="text-input" id="contacts-search" type="search" placeholder="🔍 Όνομα, διεύθυνση ή τηλέφωνο..." autocomplete="off">
+    <div class="chips" id="contacts-chips"></div>
+    <div id="contacts-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    <div class="muted-row">
+      <button class="link-btn" id="btn-export">⬇︎ Εξαγωγή επαφών</button>
+      <button class="link-btn" id="btn-import">⬆︎ Εισαγωγή επαφών</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none">
+    </div>
   </div>
 
+  <!-- ΙΣΤΟΡΙΚΟ -->
+  <div class="tab-content" id="tab-history"><div id="history-container" style="display:flex;flex-direction:column;gap:12px"></div></div>
 </div>
 
-<script>
-const API_KEY = 'AIzaSyDUj06T9pckZympGEb3E8bXLunKgLhnwB8';
-let travelMode = 'driving';
-let stopCount = 0;
-let autocompletes = {};
-let mapsReady = false;
-let generatedUrl = '';
-let currentStops = [];
-let minimapInstance = null;
-let directionsRenderer = null;
-let gpsLocation = null;
-let gpsAddress = null;
-let recognition = null;
-let isListening = false;
-let activeVoiceInput = null;
+<!-- Οθόνη αναζήτησης -->
+<div class="search-panel" id="search-panel">
+  <div class="sp-head">
+    <button class="sp-back" id="sp-back">‹ Πίσω</button>
+    <input class="sp-input" id="sp-input" type="search" enterkeyhint="search" placeholder="Διεύθυνση, μαγαζί ή επαφή..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="sp-mic" id="sp-mic" title="Φωνητική αναζήτηση">🎤</button>
+  </div>
+  <div class="sp-title" id="sp-title"></div>
+  <div class="sp-body" id="sp-body"></div>
+</div>
 
-// ── Google Maps ready ──
-function googleMapsReady() {
-  mapsReady = true;
-  document.querySelectorAll('.stop-input').forEach(inp => setupAutocomplete(inp.id));
+<div class="sheet-backdrop" id="sheet-backdrop"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- ===== CORE: καθαρή λογική, χωρίς DOM/Google — ελέγχεται με unit tests ===== -->
+<script id="core">
+const MAX_POINTS = 25;
+const MAX_URL_WAYPOINTS = 9;
+const MAX_ELEMENTS = 100;
+const GREECE_BOUNDS = { north: 41.8, south: 34.8, east: 29.7, west: 19.3 };
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
-
-function gmReady() {
-  return new Promise(resolve => {
-    if (mapsReady) { resolve(); return; }
-    const t = setInterval(() => { if (mapsReady) { clearInterval(t); resolve(); } }, 100);
-  });
+function norm(s) {
+  return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/ς/g, 'σ').replace(/\s+/g, ' ').trim();
 }
-
-function setupAutocomplete(inputId) {
-  if (!mapsReady || autocompletes[inputId]) return;
-  const input = document.getElementById(inputId);
-  if (!input) return;
-  const ac = new google.maps.places.Autocomplete(input, { fields: ['place_id', 'formatted_address', 'name'] });
-  ac.addListener('place_changed', () => {
-    const place = ac.getPlace();
-    if (place && (place.formatted_address || place.name)) {
-      input.classList.add('confirmed');
-      input.dataset.confirmed = place.formatted_address || place.name;
-      updateDots();
+function matchSaved(list, q, limit) {
+  const nq = norm(q), terms = nq.split(' ').filter(Boolean);
+  const out = [];
+  for (const p of list) {
+    const hay = norm([p.name, p.address, p.group, p.phone, p.note].join(' '));
+    if (terms.some(t => hay.indexOf(t) < 0)) continue;
+    const nameStart = nq && norm(p.name).indexOf(nq) === 0 ? 1 : 0;
+    out.push({ p, s: nameStart * 1e6 + (p.uses || 0) * 1e3 + (p.lastUsed || 0) / 1e10 });
+  }
+  out.sort((a, b) => b.s - a.s);
+  return out.slice(0, limit || out.length).map(x => x.p);
+}
+function haversine(a, b) {
+  const R = 6371000, r = x => x * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function straightMatrix(points) { return points.map(a => points.map(b => a === b ? 0 : haversine(a, b))); }
+function samePlace(a, b) {
+  if (!a || !b) return false;
+  if (a.placeId && b.placeId && a.placeId === b.placeId) return true;
+  return a.lat != null && b.lat != null && haversine(a, b) < 30;
+}
+function placeLabel(name, address) {
+  name = (name || '').trim(); address = (address || '').trim();
+  if (!name) return address;
+  if (!address || norm(address).indexOf(norm(name)) === 0) return address || name;
+  return name + ', ' + address;
+}
+function batchOrigins(n) {
+  const size = Math.max(1, Math.floor(MAX_ELEMENTS / n));
+  const out = [];
+  for (let i = 0; i < n; i += size) out.push([i, Math.min(n, i + size)]);
+  return out;
+}
+function routeCost(order, M, roundTrip) {
+  let c = 0;
+  for (let k = 0; k < order.length - 1; k++) c += M[order[k]][order[k + 1]];
+  if (roundTrip && order.length > 1) c += M[order[order.length - 1]][order[0]];
+  return c;
+}
+// Σημείο 0 = αφετηρία. Nearest-neighbor + 2-opt.
+function solveOrder(M, opts) {
+  opts = opts || {};
+  const roundTrip = !!opts.roundTrip, n = M.length;
+  if (n <= 2) return Array.from({ length: n }, (_, i) => i);
+  const end = (opts.fixEnd && !roundTrip) ? n - 1 : null;
+  const rem = [];
+  for (let i = 1; i < n; i++) if (i !== end) rem.push(i);
+  const order = [0];
+  let cur = 0;
+  while (rem.length) {
+    let bi = 0, bv = Infinity;
+    rem.forEach((x, k) => { if (M[cur][x] < bv) { bv = M[cur][x]; bi = k; } });
+    cur = rem.splice(bi, 1)[0];
+    order.push(cur);
+  }
+  if (end !== null) order.push(end);
+  const lastMovable = end !== null ? order.length - 2 : order.length - 1;
+  let best = routeCost(order, M, roundTrip), improved = true, guard = 0;
+  while (improved && guard++ < 500) {
+    improved = false;
+    for (let i = 1; i < lastMovable; i++) for (let j = i + 1; j <= lastMovable; j++) {
+      const cand = order.slice(0, i).concat(order.slice(i, j + 1).reverse(), order.slice(j + 1));
+      const c = routeCost(cand, M, roundTrip);
+      if (c < best - 1e-9) { order.splice(0, order.length, ...cand); best = c; improved = true; }
     }
+  }
+  return order;
+}
+function unreachableLegs(order, M, roundTrip) {
+  const bad = [];
+  for (let k = 0; k < order.length - 1; k++) if (!isFinite(M[order[k]][order[k + 1]])) bad.push([order[k], order[k + 1]]);
+  if (roundTrip && order.length > 1 && !isFinite(M[order[order.length - 1]][order[0]])) bad.push([order[order.length - 1], order[0]]);
+  return bad;
+}
+// Στο link: συντεταγμένες (ακριβές σημείο, σύντομο URL) + place_id όπου υπάρχει
+function urlText(p) {
+  if (p.lat != null) return (+p.lat).toFixed(6) + ',' + (+p.lng).toFixed(6);
+  return String(p.query || p.label || '').replace(/\|/g, ' ');
+}
+function buildMapsLinks(seq, mode) {
+  const links = [], legsPerLink = MAX_URL_WAYPOINTS + 1, enc = encodeURIComponent;
+  for (let s = 0; s < seq.length - 1; s += legsPerLink) {
+    const part = seq.slice(s, Math.min(seq.length, s + legsPerLink + 1));
+    const o = part[0], d = part[part.length - 1], w = part.slice(1, -1);
+    let u = 'https://www.google.com/maps/dir/?api=1&origin=' + enc(urlText(o));
+    if (o.placeId && !o.isGps) u += '&origin_place_id=' + enc(o.placeId);
+    u += '&destination=' + enc(urlText(d));
+    if (d.placeId && !d.isGps) u += '&destination_place_id=' + enc(d.placeId);
+    u += '&travelmode=' + mode;
+    if (w.length) {
+      u += '&waypoints=' + w.map(p => enc(urlText(p))).join('%7C');
+      if (w.every(p => p.placeId && !p.isGps)) u += '&waypoint_place_ids=' + w.map(p => enc(p.placeId)).join('%7C');
+    }
+    links.push({ url: u, from: s + 1, to: s + part.length });
+  }
+  return links;
+}
+function fmtDuration(sec) {
+  const m = Math.round(sec / 60);
+  if (m < 60) return m + ' λεπτά';
+  return Math.floor(m / 60) + ' ώρ. ' + (m % 60) + ' λεπ.';
+}
+function fmtDistance(m) { return m < 1000 ? Math.round(m) + ' μ.' : (m / 1000).toFixed(1).replace('.', ',') + ' χλμ.'; }
+function friendlyError(e) {
+  const m = (e && e.message) || String(e);
+  if (m === 'MAPS_AUTH' || m.indexOf('REQUEST_DENIED') >= 0)
+    return 'Το Google αρνήθηκε το αίτημα. Στο Google Cloud έλεγξε: (1) ενεργό λογαριασμό χρέωσης στο project, (2) ότι το API key στο αρχείο είναι το τρέχον και επιτρέπει το https://mesptech.github.io/*, (3) ότι είναι Enabled τα Maps JavaScript, Places (New), Places, Geocoding, Distance Matrix και Directions API.';
+  if (m === 'MAPS_TIMEOUT') return 'Το Google Maps δεν φόρτωσε. Έλεγξε τη σύνδεση και κάνε ανανέωση.';
+  if (m.indexOf('OVER_QUERY_LIMIT') >= 0) return 'Πολλά αιτήματα σε λίγο χρόνο — δοκίμασε ξανά σε ένα λεπτό.';
+  if (m.indexOf('INVALID_REQUEST') >= 0) return 'Κάποια στάση δεν αναγνωρίστηκε.';
+  return m;
+}
+if (typeof module !== 'undefined') module.exports = { norm, matchSaved, haversine, straightMatrix, samePlace, placeLabel, batchOrigins, routeCost, solveOrder, unreachableLegs, buildMapsLinks, urlText, fmtDuration, fmtDistance, friendlyError, esc, MAX_POINTS };
+</script>
+
+<!-- ===== APP ===== -->
+<script id="app">
+const $ = id => document.getElementById(id);
+const Store = {
+  get(key, def) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; } },
+  set(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); return true; } catch (e) { return false; } }
+};
+const MODES = {
+  driving:   { icon: '🚗', label: 'Αυτοκίνητο', gm: 'DRIVING' },
+  walking:   { icon: '🚶', label: 'Με τα πόδια', gm: 'WALKING' },
+  bicycling: { icon: '🚴', label: 'Ποδήλατο', gm: 'BICYCLING' },
+  transit:   { icon: '🚌', label: 'ΜΜΜ', gm: 'TRANSIT' }
+};
+const S = {
+  mode: 'driving', fixEnd: false, roundTrip: false,
+  stops: [], nextId: 1,
+  origin: { type: 'gps' }, gps: null, gpsPromise: null, gpsMsg: '',
+  mapsReady: false, mapsFailed: false,
+  last: null, map: null, renderer: null, overlays: [],
+  stopsMap: null, stopsMarkers: [],
+  recognition: null, listening: false,
+  filter: { q: '', group: '' }, lastGroup: ''
+};
+
+// ───────── UI helpers ─────────
+function showAlert(msg, type) { const el = $('sys-alert'); el.className = 'sys-alert visible ' + (type || 'error'); el.textContent = msg; el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+function hideAlert() { $('sys-alert').className = 'sys-alert'; }
+let toastT;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+function setLoading(on, text) { $('loading').classList.toggle('visible', on); if (text) $('loading-text').textContent = text; $('generate-btn').disabled = on; }
+
+// ───────── Ρυθμίσεις (θυμάται μέσο μεταφοράς κ.λπ.) ─────────
+function loadSettings() {
+  const s = Store.get('routeai-settings', {});
+  if (MODES[s.mode]) S.mode = s.mode;
+  S.fixEnd = !!s.fixEnd; S.roundTrip = !!s.roundTrip && !S.fixEnd;
+}
+function saveSettings() { Store.set('routeai-settings', { mode: S.mode, fixEnd: S.fixEnd, roundTrip: S.roundTrip }); }
+function renderModes() {
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === S.mode));
+  const m = MODES[S.mode];
+  $('generate-btn').textContent = '⚡ Βέλτιστη διαδρομή · ' + m.icon + ' ' + m.label;
+  $('mode-hint').style.display = S.mode === 'transit' ? 'block' : 'none';
+  $('toggle-fixEnd').classList.toggle('on', S.fixEnd);
+  $('toggle-roundTrip').classList.toggle('on', S.roundTrip);
+}
+function setMode(mode) { if (!MODES[mode] || mode === S.mode) return; S.mode = mode; saveSettings(); renderModes(); invalidateResult(); toast(MODES[mode].icon + ' ' + MODES[mode].label); }
+
+// ───────── Google Maps ─────────
+window.gm_authFailure = function () { S.mapsFailed = true; showAlert(friendlyError(new Error('MAPS_AUTH'))); };
+function mapsScriptError() { S.mapsFailed = true; showAlert(friendlyError(new Error('MAPS_TIMEOUT'))); }
+function googleMapsReady() { S.mapsReady = true; reverseGeocodeGps(); renderStops(); }
+function gmReady(timeoutMs) {
+  timeoutMs = timeoutMs || 12000;
+  return new Promise((resolve, reject) => {
+    if (S.mapsFailed) return reject(new Error('MAPS_AUTH'));
+    if (S.mapsReady) return resolve();
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      if (S.mapsFailed) { clearInterval(iv); reject(new Error('MAPS_AUTH')); }
+      else if (S.mapsReady) { clearInterval(iv); resolve(); }
+      else if (Date.now() - t0 > timeoutMs) { clearInterval(iv); reject(new Error('MAPS_TIMEOUT')); }
+    }, 80);
   });
-  input.addEventListener('input', () => { input.classList.remove('confirmed'); delete input.dataset.confirmed; });
-  autocompletes[inputId] = ac;
 }
 
-// ── GPS ──
-async function getGPSLocation() {
-  const el = document.getElementById('origin-value');
-  el.textContent = 'Εντοπισμός τοποθεσίας...';
-  el.className = 'origin-value loading';
-
-  if (!navigator.geolocation) { el.textContent = 'Δεν υποστηρίζεται GPS'; return; }
-
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude, longitude } = pos.coords;
-    gpsLocation = { lat: latitude, lng: longitude };
+// ───────── Geo: Places (New) με αυτόματη εφεδρεία στο παλιό Places/Geocoding ─────────
+function mkPlace(placeId, name, address, lat, lng) {
+  return { placeId: placeId || null, name: (name || '').trim(), address: (address || '').trim(), label: placeLabel(name, address), lat: +lat, lng: +lng };
+}
+function llOf(loc) { return { lat: typeof loc.lat === 'function' ? loc.lat() : loc.lat, lng: typeof loc.lng === 'function' ? loc.lng() : loc.lng }; }
+function geocodeRaw(req) {
+  return new Promise((resolve, reject) => {
+    new google.maps.Geocoder().geocode(req, (res, status) => status === 'OK' && res && res[0] ? resolve(res[0]) : reject(new Error('GEOCODE_' + status)));
+  });
+}
+function refPoint() { return S.origin.type === 'place' ? S.origin.place : S.gps; }
+const Geo = {
+  lib: undefined, useNew: null, token: null, ltoken: null, acs: null,
+  bias() { const r = refPoint(); return r ? { center: { lat: r.lat, lng: r.lng }, radius: 50000 } : GREECE_BOUNDS; },
+  async init() {
     await gmReady();
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ location: gpsLocation }, (results, status) => {
-      if (status === 'OK' && results[0]) {
-        gpsAddress = results[0].formatted_address;
-        el.textContent = gpsAddress;
-        el.className = 'origin-value';
-      } else {
-        gpsAddress = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-        el.textContent = gpsAddress;
-        el.className = 'origin-value';
-      }
-    });
-  }, err => {
-    el.textContent = 'Δεν επιτράπηκε η πρόσβαση — εισήγαγε χειροκίνητα';
-    el.className = 'origin-value loading';
-    gpsAddress = null;
-  });
-}
-
-// ── Voice recognition ──
-function initRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) return null;
-  const r = new SpeechRecognition();
-  r.lang = 'el-GR';
-  r.continuous = false;
-  r.interimResults = true;
-  return r;
-}
-
-function toggleGlobalVoice() {
-  if (isListening) { stopVoice(); return; }
-  // Add a new stop and activate voice on it
-  addStop();
-  const inputs = document.querySelectorAll('.stop-input');
-  const last = inputs[inputs.length - 1];
-  if (last) startVoiceOnInput(last.id);
-}
-
-function startVoiceOnInput(inputId) {
-  if (isListening) stopVoice();
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) { alert('Η φωνητική αναγνώριση δεν υποστηρίζεται σε αυτό το browser.'); return; }
-
-  recognition = new SpeechRecognition();
-  recognition.lang = 'el-GR';
-  recognition.continuous = false;
-  recognition.interimResults = true;
-
-  const input = document.getElementById(inputId);
-  const micBtn = document.querySelector(`#${inputId}`)?.parentElement?.parentElement?.querySelector('.btn-mic');
-  activeVoiceInput = inputId;
-  isListening = true;
-
-  document.getElementById('global-voice-btn').classList.add('listening');
-  document.getElementById('voice-status').classList.add('visible');
-  document.getElementById('voice-status-text').textContent = 'Μίλα τώρα — πες μια τοποθεσία...';
-  if (input) input.classList.add('voice-active');
-  if (micBtn) micBtn.classList.add('active');
-
-  recognition.onresult = e => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    if (input) { input.value = transcript; delete input.dataset.confirmed; input.classList.remove('confirmed'); }
-    document.getElementById('voice-status-text').textContent = `"${transcript}"`;
-  };
-
-  recognition.onend = () => {
-    if (input && input.value.trim()) {
-      input.classList.remove('voice-active');
-      // Trigger geocode search
-      if (mapsReady) {
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ address: input.value }, (results, status) => {
-          if (status === 'OK' && results[0]) {
-            input.value = results[0].formatted_address;
-            input.dataset.confirmed = results[0].formatted_address;
-            input.classList.add('confirmed');
-          }
+    if (this.lib !== undefined) return;
+    try { this.lib = await google.maps.importLibrary('places'); } catch (e) { this.lib = null; }
+    if (!this.lib || !this.lib.AutocompleteSuggestion) this.useNew = false;
+  },
+  async suggest(text) {
+    await this.init();
+    const ref = refPoint();
+    if (this.useNew !== false) {
+      try {
+        if (!this.token) this.token = new this.lib.AutocompleteSessionToken();
+        const req = { input: text, sessionToken: this.token, language: 'el', region: 'gr', locationBias: this.bias() };
+        if (ref) req.origin = { lat: ref.lat, lng: ref.lng };
+        const { suggestions } = await this.lib.AutocompleteSuggestion.fetchAutocompleteSuggestions(req);
+        this.useNew = true;
+        return (suggestions || []).filter(s => s.placePrediction).slice(0, 6).map(s => {
+          const p = s.placePrediction;
+          return { id: p.placeId, main: p.mainText ? p.mainText.text : p.text.text, secondary: p.secondaryText ? p.secondaryText.text : '', dist: p.distanceMeters, pred: p };
         });
+      } catch (e) {
+        if (this.useNew === true) throw e;          // δούλευε πριν → πραγματικό σφάλμα
+        this.useNew = false;                          // δεν είναι ενεργό το Places (New) → παλιό API
+        console.warn('Places (New) unavailable, using legacy:', e && e.message);
       }
     }
-    stopVoice();
-  };
-
-  recognition.onerror = () => stopVoice();
-  recognition.start();
-}
-
-function stopVoice() {
-  isListening = false;
-  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
-  document.getElementById('global-voice-btn').classList.remove('listening');
-  document.getElementById('voice-status').classList.remove('visible');
-  document.querySelectorAll('.stop-input').forEach(i => i.classList.remove('voice-active'));
-  document.querySelectorAll('.btn-mic').forEach(b => b.classList.remove('active'));
-  activeVoiceInput = null;
-}
-
-// ── UI ──
-function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='route')||(i===1&&tab==='history')));
-  document.getElementById('tab-route').classList.toggle('active', tab==='route');
-  document.getElementById('tab-history').classList.toggle('active', tab==='history');
-  if (tab === 'history') renderHistory();
-}
-
-function setMode(mode) {
-  travelMode = mode;
-  document.querySelectorAll('.mode-pill').forEach(b => b.classList.remove('active'));
-  document.getElementById('mode-' + mode).classList.add('active');
-}
-
-function toggleOpt(id) {
-  const cb = document.getElementById(id);
-  cb.checked = !cb.checked;
-  document.getElementById('toggle-' + id).classList.toggle('on', cb.checked);
-}
-
-function updateDots() {
-  const rows = document.querySelectorAll('.stop-row');
-  rows.forEach((row, i) => {
-    row.querySelector('.stop-dot').className = 'stop-dot' + (i === rows.length-1 ? ' last' : '');
-  });
-}
-
-function addStop() {
-  stopCount++;
-  const id = 'stop-' + stopCount;
-  const rowId = 'row-' + stopCount;
-  const list = document.getElementById('stops-list');
-  const row = document.createElement('div');
-  row.className = 'stop-row';
-  row.id = rowId;
-  row.innerHTML = `
-    <div class="stop-indicator"><div class="stop-dot"></div></div>
-    <div class="stop-input-wrap">
-      <input class="stop-input" id="${id}" type="text" placeholder="Προσθήκη στάσης..." autocomplete="off" />
-    </div>
-    <button class="btn-mic" onclick="startVoiceOnInput('${id}')" title="Φωνητική εισαγωγή">🎤</button>
-    <button class="btn-remove" onclick="removeStop('${rowId}', '${id}')">✕</button>
-  `;
-  list.appendChild(row);
-  updateDots();
-  if (mapsReady) setupAutocomplete(id);
-  setTimeout(() => document.getElementById(id)?.focus(), 100);
-}
-
-function removeStop(rowId, inputId) {
-  document.getElementById(rowId)?.remove();
-  delete autocompletes[inputId];
-  updateDots();
-}
-
-function clearAll() {
-  document.getElementById('stops-list').innerHTML = '';
-  document.getElementById('result-card').classList.remove('visible');
-  document.getElementById('error-msg').style.display = 'none';
-  autocompletes = {};
-  stopCount = 0;
-  addStop(); addStop();
-}
-
-function getAllStops() {
-  return Array.from(document.querySelectorAll('.stop-input'))
-    .map(inp => inp.dataset.confirmed || inp.value.trim())
-    .filter(v => v.length > 0);
-}
-
-// ── Optimization ──
-async function computeOptimalOrder(stops, fixEnd) {
-  const n = stops.length;
-  const matrix = Array.from({length: n}, () => Array(n).fill(Infinity));
-  const service = new google.maps.DistanceMatrixService();
-  const result = await new Promise((resolve, reject) => {
-    service.getDistanceMatrix({
-      origins: stops, destinations: stops,
-      travelMode: google.maps.TravelMode[travelMode.toUpperCase()],
-      unitSystem: google.maps.UnitSystem.METRIC,
-    }, (res, status) => { if (status === 'OK') resolve(res); else reject(new Error(status)); });
-  });
-  for (let i = 0; i < n; i++)
-    for (let j = 0; j < n; j++)
-      if (i !== j && result.rows[i].elements[j].status === 'OK')
-        matrix[i][j] = result.rows[i].elements[j].duration.value;
-
-  let indices = stops.map((_, i) => i);
-  let startFixed = [indices.shift()]; // always fix start (GPS)
-  let endFixed = fixEnd ? [indices.pop()] : [];
-  let optimized = [...startFixed];
-  let remaining = [...indices];
-  let current = optimized[optimized.length-1];
-
-  while (remaining.length > 0) {
-    let best = Infinity, bestIdx = -1, bestPos = -1;
-    for (let ri = 0; ri < remaining.length; ri++) {
-      if (matrix[current][remaining[ri]] < best) { best = matrix[current][remaining[ri]]; bestIdx = ri; bestPos = remaining[ri]; }
+    return new Promise((resolve, reject) => {
+      if (!this.acs) this.acs = new google.maps.places.AutocompleteService();
+      if (!this.ltoken) this.ltoken = new google.maps.places.AutocompleteSessionToken();
+      const req = { input: text, sessionToken: this.ltoken, language: 'el', region: 'gr', locationBias: this.bias() };
+      if (ref) req.origin = { lat: ref.lat, lng: ref.lng };
+      this.acs.getPlacePredictions(req, (preds, status) => {
+        if (status === 'OK' || status === 'ZERO_RESULTS') resolve((preds || []).slice(0, 6).map(p => ({
+          id: p.place_id, main: (p.structured_formatting && p.structured_formatting.main_text) || p.description,
+          secondary: (p.structured_formatting && p.structured_formatting.secondary_text) || '', dist: p.distance_meters })));
+        else reject(new Error('AUTOCOMPLETE_' + status));
+      });
+    });
+  },
+  async details(s) {
+    if (s.pred) {
+      const place = s.pred.toPlace();
+      await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+      this.token = null;
+      const ll = llOf(place.location);
+      return mkPlace(place.id || s.id, place.displayName || s.main, place.formattedAddress || s.secondary, ll.lat, ll.lng);
     }
-    optimized.push(bestPos); current = bestPos; remaining.splice(bestIdx, 1);
+    const r = await geocodeRaw({ placeId: s.id });
+    this.ltoken = null;
+    const ll = llOf(r.geometry.location);
+    return mkPlace(s.id, s.main, r.formatted_address, ll.lat, ll.lng);
   }
-  optimized = [...optimized, ...endFixed];
+};
 
-  let origDur = 0, optDur = 0;
-  for (let i = 0; i < n-1; i++) origDur += matrix[i][i+1] || 0;
-  for (let i = 0; i < optimized.length-1; i++) optDur += matrix[optimized[i]][optimized[i+1]] || 0;
-  return { order: optimized, savedSeconds: origDur - optDur };
+// ───────── Επαφές (αποθηκεύονται στη συσκευή) ─────────
+function newPlaceId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function loadPlaces() {
+  const list = Store.get('routeai-places', []);
+  if (!Array.isArray(list)) return [];
+  let fixed = false;
+  list.forEach(p => { if (!p.id) { p.id = newPlaceId(); fixed = true; } });
+  if (fixed) Store.set('routeai-places', list);
+  return list;
+}
+function savePlaces(list) { if (!Store.set('routeai-places', list)) toast('⚠️ Δεν αποθηκεύτηκε (ιδιωτική περιήγηση;)'); }
+function findSaved(p) { return p && !p.isGps && !p.gps ? loadPlaces().find(x => samePlace(x, p)) : null; }
+function groupsOf(list) { return [...new Set(list.map(p => (p.group || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'el')); }
+function upsertPlace(obj) {
+  obj = Object.assign({}, obj);
+  if (!obj.id) delete obj.id;
+  const list = loadPlaces();
+  const i = obj.id ? list.findIndex(x => x.id === obj.id) : list.findIndex(x => samePlace(x, obj));
+  if (i >= 0) list[i] = Object.assign({}, list[i], obj, { id: list[i].id });
+  else list.push(Object.assign({ uses: 0, lastUsed: 0, created: Date.now() }, obj, { id: newPlaceId() }));
+  savePlaces(list);
+}
+function deletePlace(id) { savePlaces(loadPlaces().filter(x => x.id !== id)); }
+function bumpUses(points) {
+  const list = loadPlaces(); let changed = false;
+  points.forEach(p => { const s = list.find(x => samePlace(x, p)); if (s) { s.uses = (s.uses || 0) + 1; s.lastUsed = Date.now(); changed = true; } });
+  if (changed) savePlaces(list);
+}
+function placeFromSaved(s) { return { placeId: s.placeId || null, name: s.name, address: s.address, label: s.name + (s.address ? ', ' + s.address : ''), lat: s.lat, lng: s.lng }; }
+function displayName(p) { const c = findSaved(p); return c ? c.name : (p.name || p.label || ''); }
+function distLabel(p) { const r = refPoint(); return r && p && p.lat != null ? fmtDistance(haversine(r, p)) : ''; }
+function telHref(phone) { return 'tel:' + String(phone || '').replace(/[^\d+]/g, ''); }
+function loadRecent() { return Store.get('routeai-recent', []); }
+function addRecent(p) {
+  const r = loadRecent().filter(x => !samePlace(x, p));
+  r.unshift({ placeId: p.placeId, name: p.name, address: p.address, label: p.label, lat: p.lat, lng: p.lng });
+  Store.set('routeai-recent', r.slice(0, 8));
 }
 
-function showMinimap(orderedStops) {
-  const mapDiv = document.getElementById('minimap');
-  if (!mapDiv) return;
-  if (!minimapInstance) {
-    minimapInstance = new google.maps.Map(mapDiv, { zoom: 10, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, zoomControl: false });
-  }
-  if (!directionsRenderer) {
-    directionsRenderer = new google.maps.DirectionsRenderer();
-    directionsRenderer.setMap(minimapInstance);
-  }
-  const ds = new google.maps.DirectionsService();
-  const waypts = orderedStops.slice(1,-1).map(s => ({ location: s, stopover: true }));
-  ds.route({ origin: orderedStops[0], destination: orderedStops[orderedStops.length-1], waypoints: waypts, travelMode: google.maps.TravelMode[travelMode.toUpperCase()], optimizeWaypoints: false }, (res, status) => {
-    if (status === 'OK') directionsRenderer.setDirections(res);
+// ───────── Οθόνη αναζήτησης ─────────
+function fitOverlays() {
+  const vv = window.visualViewport;
+  ['search-panel', 'sheet-backdrop'].forEach(id => {
+    const el = $(id);
+    if (vv) { el.style.top = vv.offsetTop + 'px'; el.style.height = vv.height + 'px'; }
+    else { el.style.top = '0px'; el.style.height = window.innerHeight + 'px'; }
   });
+}
+if (window.visualViewport) { visualViewport.addEventListener('resize', fitOverlays); visualViewport.addEventListener('scroll', fitOverlays); }
+window.addEventListener('resize', fitOverlays);
+
+const Search = {
+  el: $('search-panel'), input: $('sp-input'), body: $('sp-body'),
+  opts: null, seq: 0, timer: null, items: [], google: null, note: '', busy: false,
+  open(o) {
+    stopVoice();
+    this.opts = o; this.google = null; this.note = ''; this.busy = false; this.seq++;
+    clearTimeout(this.timer);
+    $('sp-title').textContent = o.title || '';
+    this.input.value = '';
+    this.el.classList.add('open'); document.body.classList.add('noscroll');
+    fitOverlays();
+    if (!o.noFocus) this.input.focus();      // μέσα στο ίδιο tap → ανοίγει το πληκτρολόγιο στο iPhone
+    this.render();
+    this.body.scrollTop = 0;
+  },
+  close() {
+    stopVoice(); this.seq++; clearTimeout(this.timer);
+    this.opts = null; this.el.classList.remove('open'); document.body.classList.remove('noscroll'); this.input.blur();
+  },
+  refresh() {
+    if (!this.opts) return;
+    const q = this.input.value.trim();
+    this.google = null; this.note = q.length >= 2 ? 'searching' : '';
+    this.render();
+    clearTimeout(this.timer);
+    if (q.length < 2) return;
+    const my = ++this.seq;
+    this.timer = setTimeout(async () => {
+      try {
+        const g = await Geo.suggest(q);
+        if (my !== this.seq || !this.opts) return;            // αγνόησε παλιές απαντήσεις
+        this.google = g; this.note = g.length ? '' : 'none';
+      } catch (e) {
+        if (my !== this.seq || !this.opts) return;
+        this.google = []; this.note = 'err:' + friendlyError(e);
+      }
+      this.render();
+    }, 250);
+  },
+  render() {
+    if (!this.opts) return;
+    const q = this.input.value.trim(), o = this.opts, items = [];
+    let html = '';
+    const row = (it, ico, cls, name, sub, dist, badge) => {
+      html += '<div class="res-item" data-i="' + items.length + '"><div class="res-ico ' + cls + '">' + ico + '</div><div class="res-text"><div class="res-name">' + esc(name) + (badge || '') + '</div>' +
+        (sub ? '<div class="res-sub">' + esc(sub) + '</div>' : '') + '</div>' + (dist ? '<div class="res-dist">' + esc(dist) + '</div>' : '') + '</div>';
+      items.push(it);
+    };
+    if (o.allowGps && !q) row({ kind: 'gps' }, '📍', 'gps', 'Η τοποθεσία μου (GPS)', S.gps ? (S.gps.address || 'Τρέχουσα θέση') : 'Ξεκίνα από εκεί που βρίσκεσαι', '');
+    if (!o.noContacts) {
+      const cs = matchSaved(loadPlaces(), q, q ? 5 : 8);
+      if (cs.length) {
+        html += '<div class="res-head">' + (q ? '👥 Επαφές' : '👥 Οι επαφές μου') + '</div>';
+        cs.forEach(c => row({ kind: 'contact', c }, '👤', 'contact', c.name, c.address, distLabel(c), c.group ? ' <span class="place-group">' + esc(c.group) + '</span>' : ''));
+      }
+    }
+    if (!q) {
+      const rc = loadRecent().filter(r => !findSaved(r)).slice(0, 5);
+      if (rc.length) { html += '<div class="res-head">🕐 Πρόσφατα</div>'; rc.forEach(r => row({ kind: 'recent', r }, '🕐', 'recent', r.name || r.label, r.address && r.address !== r.name ? r.address : '', distLabel(r))); }
+    }
+    if (this.google && this.google.length) {
+      html += '<div class="res-head">📍 Google Maps</div>';
+      this.google.forEach(g => row({ kind: 'google', g }, '📍', '', g.main, g.secondary, g.dist != null ? fmtDistance(g.dist) : ''));
+      html += '<div class="res-foot">powered by Google</div>';
+    }
+    if (this.note === 'searching') html += '<div class="res-note"><div class="spinner sm"></div>Αναζήτηση στο Google Maps…</div>';
+    else if (this.note === 'none') html += '<div class="res-note">Δεν βρέθηκε τίποτα για «' + esc(q) + '». Πρόσθεσε και την περιοχή, π.χ. «' + esc(q) + ' Θεσσαλονίκη».</div>';
+    else if (this.note && this.note.indexOf('err:') === 0) html += '<div class="res-note err">⚠️ ' + esc(this.note.slice(4)) + '</div>';
+    if (!q && !items.length) html += '<div class="res-note">Γράψε διεύθυνση, όνομα μαγαζιού ή επαφής. Θα δεις εδώ τα αποτελέσματα με την πλήρη διεύθυνση και την απόσταση από ' + (S.origin.type === 'place' ? 'την αφετηρία' : 'σένα') + ', για να διαλέξεις το σωστό.</div>';
+    this.items = items;
+    this.body.innerHTML = html;
+    this.body.querySelectorAll('.res-item').forEach(el => el.addEventListener('click', () => this.pick(+el.dataset.i, el)));
+  },
+  async pick(i, el) {
+    const it = this.items[i], o = this.opts;
+    if (!it || !o || this.busy) return;
+    let place;
+    if (it.kind === 'gps') place = { gps: true };
+    else if (it.kind === 'contact') place = placeFromSaved(it.c);
+    else if (it.kind === 'recent') place = Object.assign({}, it.r);
+    else {
+      this.busy = true; if (el) el.classList.add('loading');
+      try { place = await Geo.details(it.g); }
+      catch (e) { this.busy = false; if (el) el.classList.remove('loading'); this.note = 'err:Δεν φορτώθηκαν τα στοιχεία της τοποθεσίας. ' + friendlyError(e); this.render(); return; }
+      this.busy = false;
+      addRecent(place);
+    }
+    if (this.opts !== o) return;
+    this.close();
+    o.onPick(place);
+  }
+};
+$('sp-input').addEventListener('input', () => Search.refresh());
+$('sp-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); if (Search.items.length) Search.pick(0, Search.body.querySelector('.res-item')); }
+  else if (e.key === 'Escape') Search.close();
+});
+$('sp-back').addEventListener('click', () => Search.close());
+$('sp-mic').addEventListener('click', () => startVoiceSearch());
+
+// ───────── Φωνή (γεμίζει την αναζήτηση — εσύ διαλέγεις το σωστό αποτέλεσμα) ─────────
+function startVoiceSearch() {
+  if (S.listening) { stopVoice(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { Search.note = 'err:Η φωνητική αναζήτηση δεν υποστηρίζεται εδώ. Πάτα το 🎤 του πληκτρολογίου.'; Search.render(); Search.input.focus(); return; }
+  const r = new SR(); r.lang = 'el-GR'; r.continuous = false; r.interimResults = true;
+  S.recognition = r; S.listening = true;
+  $('sp-mic').classList.add('active'); $('global-voice-btn').classList.add('listening');
+  Search.input.placeholder = 'Μίλα τώρα...';
+  r.onresult = e => { Search.input.value = Array.from(e.results).map(x => x[0].transcript).join(''); };
+  r.onerror = e => { Search.note = 'err:' + (e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Δεν επιτράπηκε η πρόσβαση στο μικρόφωνο.' : e.error === 'no-speech' ? 'Δεν ακούστηκε τίποτα — δοκίμασε ξανά.' : 'Σφάλμα φωνής (' + e.error + ').'); Search.render(); };
+  r.onend = () => { stopVoice(); if (Search.opts && Search.input.value.trim()) Search.refresh(); };
+  try { r.start(); } catch (e) { stopVoice(); }
+}
+function stopVoice() {
+  S.listening = false;
+  if (S.recognition) { try { S.recognition.stop(); } catch (e) {} S.recognition = null; }
+  $('sp-mic').classList.remove('active'); $('global-voice-btn').classList.remove('listening');
+  $('sp-input').placeholder = 'Διεύθυνση, μαγαζί ή επαφή...';
+}
+
+// ───────── Αφετηρία ─────────
+function originPoint() {
+  if (S.origin.type === 'place') return Object.assign({}, S.origin.place);
+  if (S.gps) return { label: S.gps.address || 'Η τοποθεσία μου', name: 'Η τοποθεσία μου', address: S.gps.address || '', lat: S.gps.lat, lng: S.gps.lng, isGps: true };
+  return null;
+}
+function renderOrigin() {
+  const lbl = $('origin-label'), val = $('origin-value');
+  $('btn-gps-refresh').style.display = S.origin.type === 'gps' ? '' : 'none';
+  if (S.origin.type === 'place') {
+    const p = S.origin.place, nm = displayName(p);
+    lbl.textContent = 'Αφετηρία';
+    val.textContent = nm + (p.address && p.address !== nm ? ' · ' + p.address : '');
+    val.className = 'origin-value';
+    return;
+  }
+  lbl.textContent = 'Αφετηρία · η τοποθεσία μου';
+  if (S.gps) { val.textContent = S.gps.address || 'Βρέθηκε (' + S.gps.lat.toFixed(4) + ', ' + S.gps.lng.toFixed(4) + ')'; val.className = 'origin-value'; }
+  else { val.textContent = S.gpsMsg || 'Εντοπισμός τοποθεσίας...'; val.className = 'origin-value muted'; }
+}
+function getGPSLocation() {
+  S.gps = null; S.gpsMsg = 'Εντοπισμός τοποθεσίας...'; renderOrigin();
+  S.gpsPromise = new Promise(resolve => {
+    if (!navigator.geolocation) { S.gpsMsg = 'Χωρίς GPS — πάτα «Αλλαγή» για αφετηρία'; renderOrigin(); return resolve(); }
+    navigator.geolocation.getCurrentPosition(pos => {
+      S.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, address: null };
+      renderOrigin(); renderStops(); reverseGeocodeGps(); resolve();
+    }, err => {
+      S.gpsMsg = err.code === 1 ? 'Δεν επιτράπηκε η τοποθεσία — πάτα «Αλλαγή» για αφετηρία' : 'Δεν βρέθηκε τοποθεσία — πάτα 🔄 ή «Αλλαγή»';
+      renderOrigin(); resolve();
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+  });
+}
+function reverseGeocodeGps() {
+  const g = S.gps; if (!g || !S.mapsReady || g.address) return;
+  geocodeRaw({ location: { lat: g.lat, lng: g.lng } }).then(r => { if (S.gps === g) { g.address = r.formatted_address; renderOrigin(); } }).catch(() => {});
+}
+
+// ───────── Στάσεις ─────────
+function invalidateResult() { S.last = null; $('result-card').classList.remove('visible'); }
+// Κρατά τις στάσεις αν κλείσει/ανανεωθεί η σελίδα (π.χ. όταν αλλάζεις εφαρμογή στο iPhone)
+function saveDraft() { Store.set('routeai-draft', { stops: S.stops.map(st => st.place), origin: S.origin.type === 'place' ? S.origin : { type: 'gps' } }); }
+function loadDraft() {
+  const d = Store.get('routeai-draft', null);
+  if (!d) return;
+  (d.stops || []).forEach(p => { if (p && isFinite(p.lat) && isFinite(p.lng) && S.stops.length < MAX_POINTS - 1) S.stops.push({ id: S.nextId++, place: p }); });
+  if (d.origin && d.origin.type === 'place' && d.origin.place && isFinite(d.origin.place.lat)) S.origin = d.origin;
+}
+function addPlaceAsStop(place) {
+  if (!place || place.gps) return false;
+  if (S.stops.some(st => samePlace(st.place, place))) { toast('Είναι ήδη στη διαδρομή'); return false; }
+  if (S.stops.length >= MAX_POINTS - 1) { showAlert('Μέγιστο ' + (MAX_POINTS - 1) + ' στάσεις ανά διαδρομή.', 'info'); return false; }
+  S.stops.push({ id: S.nextId++, place });
+  return true;
+}
+function openStopSearch(st, extra) {
+  Search.open(Object.assign({
+    title: st ? 'Αλλαγή στάσης ' + (S.stops.indexOf(st) + 1) : 'Νέα στάση ' + (S.stops.length + 1),
+    onPick: place => {
+      if (st) { st.place = place; toast('✓ Άλλαξε: ' + displayName(place)); }
+      else if (addPlaceAsStop(place)) toast('✓ Προστέθηκε: ' + displayName(place));
+      invalidateResult(); renderStops();
+    }
+  }, extra || {}));
+}
+function renderStops() {
+  const box = $('stops-list'), n = S.stops.length;
+  $('stops-title').textContent = n ? 'Στάσεις · ' + n : 'Στάσεις';
+  $('btn-clear').style.display = n ? '' : 'none';
+  if (!n) {
+    box.innerHTML = '<div class="stops-empty">Δεν έχεις στάσεις ακόμα. Πάτα <b>«＋ Προσθήκη στάσης»</b> και γράψε διεύθυνση, μαγαζί ή όνομα επαφής — ή διάλεξε από τις επαφές σου.</div>';
+  } else {
+    const refTxt = S.origin.type === 'place' ? 'από την αφετηρία' : 'από σένα';
+    box.innerHTML = S.stops.map((st, i) => {
+      const p = st.place, c = findSaved(p);
+      const name = c ? c.name : (p.name || p.label);
+      const addr = c ? c.address : (p.address && p.address !== name ? p.address : '');
+      const d = distLabel(p);
+      return '<div class="stop-card" data-id="' + st.id + '">' +
+        '<div class="stop-num' + (i === n - 1 ? ' last' : '') + '">' + (i + 1) + '</div>' +
+        '<div class="stop-text" data-act="edit"><div class="stop-name">' + esc(name) + (c ? ' <span class="badge-contact">👤 Επαφή</span>' : '') + '</div>' +
+          (addr ? '<div class="stop-addr">' + esc(addr) + '</div>' : '') +
+          '<div class="stop-meta">✓ Στον χάρτη' + (d ? ' · ' + d + ' ' + refTxt : '') + '</div></div>' +
+        '<div class="stop-actions">' + (c ? '' : '<button class="btn-save-contact" data-act="save">☆ Σε επαφές</button>') +
+          '<button class="row-btn" data-act="rm" title="Αφαίρεση">✕</button></div>' +
+      '</div>';
+    }).join('');
+    box.querySelectorAll('.stop-card').forEach(card => {
+      const st = S.stops.find(x => String(x.id) === card.dataset.id);
+      card.querySelector('[data-act=edit]').addEventListener('click', () => openStopSearch(st));
+      const sv = card.querySelector('[data-act=save]');
+      if (sv) sv.addEventListener('click', () => openContactSheet({ place: st.place }));
+      card.querySelector('[data-act=rm]').addEventListener('click', () => { S.stops = S.stops.filter(x => x !== st); invalidateResult(); renderStops(); });
+    });
+  }
+  updateStopsMap();
+  saveDraft();
+}
+function updateStopsMap() {
+  const card = $('map-card');
+  if (!S.stops.length || !S.mapsReady || S.mapsFailed || typeof google === 'undefined') { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const pts = [], o = originPoint();
+  if (o) pts.push({ p: o, label: 'Α', title: 'Αφετηρία' });
+  S.stops.forEach((st, i) => pts.push({ p: st.place, label: String(i + 1), title: displayName(st.place) }));
+  try {
+    if (!S.stopsMap) S.stopsMap = new google.maps.Map($('stops-map'), { center: { lat: pts[0].p.lat, lng: pts[0].p.lng }, zoom: 12, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
+    S.stopsMarkers.forEach(m => m.setMap(null)); S.stopsMarkers = [];
+    const bounds = new google.maps.LatLngBounds();
+    pts.forEach(x => {
+      const pos = { lat: x.p.lat, lng: x.p.lng };
+      S.stopsMarkers.push(new google.maps.Marker({ position: pos, map: S.stopsMap, title: x.title, label: { text: x.label, color: 'white', fontWeight: '700' } }));
+      bounds.extend(pos);
+    });
+    if (pts.length === 1) { S.stopsMap.setCenter({ lat: pts[0].p.lat, lng: pts[0].p.lng }); S.stopsMap.setZoom(15); }
+    else S.stopsMap.fitBounds(bounds, 40);
+  } catch (e) { card.style.display = 'none'; }
+}
+
+// ───────── Bottom sheets ─────────
+function openSheet(html, onMount) {
+  $('sheet').innerHTML = html;
+  $('sheet-backdrop').classList.add('open');
+  fitOverlays();
+  $('sheet').querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeSheet));
+  if (onMount) onMount($('sheet'));
+}
+function closeSheet() { $('sheet-backdrop').classList.remove('open'); $('sheet').innerHTML = ''; }
+$('sheet-backdrop').addEventListener('click', e => { if (e.target.id === 'sheet-backdrop') closeSheet(); });
+
+// Νέα επαφή / επεξεργασία / αποθήκευση στάσης ως επαφή
+function openContactSheet(opts) {
+  const edit = opts.edit || null;
+  const f = {
+    name: edit ? edit.name : (opts.place ? (opts.place.name || (opts.place.label || '').split(',')[0]) : ''),
+    place: edit ? { placeId: edit.placeId, name: edit.name, address: edit.address, label: edit.address, lat: edit.lat, lng: edit.lng } : (opts.place || null),
+    phone: edit ? (edit.phone || '') : '', group: edit ? (edit.group || '') : S.lastGroup, note: edit ? (edit.note || '') : ''
+  };
+  const groups = groupsOf(loadPlaces());
+  const draw = () => openSheet(
+    '<div class="sheet-head"><div class="sheet-title">' + (edit ? 'Επεξεργασία επαφής' : 'Νέα επαφή') + '</div><button class="sheet-close" data-close>✕</button></div>' +
+    '<div class="sheet-body">' +
+      '<div><div class="field-label">Όνομα *</div><input class="text-input" id="cs-name" maxlength="60" placeholder="π.χ. Παπαδόπουλος, Αποθήκη" autocomplete="off"></div>' +
+      '<div><div class="field-label">Διεύθυνση *</div><button class="addr-pick' + (f.place ? '' : ' empty-addr') + '" id="cs-addr">' +
+        (f.place ? '<span>📍 ' + esc(f.place.address || f.place.label) + '</span><span class="addr-change">Αλλαγή</span>' : '<span>🔍 Πάτα για αναζήτηση διεύθυνσης</span>') + '</button></div>' +
+      '<div><div class="field-label">Τηλέφωνο</div><input class="text-input" id="cs-phone" type="tel" inputmode="tel" maxlength="30" placeholder="π.χ. 6912345678" autocomplete="off"></div>' +
+      '<div><div class="field-label">Ομάδα</div><input class="text-input" id="cs-group" list="cs-groups" maxlength="30" placeholder="π.χ. Πελάτες, Προμηθευτές" autocomplete="off"><datalist id="cs-groups">' + groups.map(g => '<option value="' + esc(g) + '">').join('') + '</datalist></div>' +
+      '<div><div class="field-label">Σημείωση</div><input class="text-input" id="cs-note" maxlength="120" placeholder="π.χ. 2ος όροφος, ωράριο 9–17" autocomplete="off"></div>' +
+    '</div>' +
+    '<div class="sheet-foot">' + (edit ? '<button class="btn-danger" id="cs-del">Διαγραφή</button>' : '<button class="btn-secondary" data-close>Άκυρο</button>') +
+      '<button class="btn-primary" id="cs-save">Αποθήκευση</button></div>',
+    sh => {
+      const I = id => sh.querySelector('#' + id);
+      I('cs-name').value = f.name; I('cs-phone').value = f.phone; I('cs-group').value = f.group; I('cs-note').value = f.note;
+      const sync = () => { f.name = I('cs-name').value; f.phone = I('cs-phone').value; f.group = I('cs-group').value; f.note = I('cs-note').value; I('cs-save').disabled = !(f.name.trim() && f.place); };
+      ['cs-name', 'cs-phone', 'cs-group', 'cs-note'].forEach(id => I(id).addEventListener('input', sync));
+      sync();
+      I('cs-addr').addEventListener('click', () => {
+        sync();
+        Search.open({ title: 'Διεύθυνση επαφής', noContacts: true, onPick: p => { f.place = p; if (!f.name.trim()) f.name = p.name || ''; draw(); } });
+      });
+      I('cs-save').addEventListener('click', () => {
+        sync(); if (!f.name.trim() || !f.place) return;
+        S.lastGroup = f.group.trim();
+        upsertPlace({ id: edit ? edit.id : undefined, name: f.name.trim(), address: f.place.address || f.place.label, lat: f.place.lat, lng: f.place.lng, placeId: f.place.placeId || null, phone: f.phone.trim(), group: f.group.trim(), note: f.note.trim() });
+        closeSheet(); toast('👤 Αποθηκεύτηκε: ' + f.name.trim());
+        renderContacts(); renderStops(); renderOrigin(); if (S.last) renderResult();
+      });
+      const del = I('cs-del');
+      if (del) del.addEventListener('click', () => {
+        if (!confirm('Διαγραφή της επαφής «' + edit.name + '»;')) return;
+        deletePlace(edit.id); closeSheet(); toast('Διαγράφηκε'); renderContacts(); renderStops(); renderOrigin(); if (S.last) renderResult();
+      });
+    });
+  draw();
+}
+
+// Πολλαπλή επιλογή επαφών → στάσεις
+function openPicker() {
+  const list = loadPlaces();
+  if (!list.length) {
+    openSheet('<div class="sheet-head"><div class="sheet-title">Οι επαφές μου</div><button class="sheet-close" data-close>✕</button></div><div class="sheet-body"><div class="empty" style="box-shadow:none"><div class="empty-icon">👥</div>Δεν έχεις επαφές ακόμα.<br>Πρόσθεσε με «＋ Νέα επαφή» ή πάτα «☆ Σε επαφές» σε μια στάση.</div></div><div class="sheet-foot"><button class="btn-primary" id="pk-new">＋ Νέα επαφή</button></div>',
+      sh => sh.querySelector('#pk-new').addEventListener('click', () => { closeSheet(); openContactSheet({}); }));
+    return;
+  }
+  const sel = new Set(), groups = groupsOf(list);
+  let q = '', group = '';
+  const inRoute = p => S.stops.some(st => samePlace(st.place, p));
+  openSheet(
+    '<div class="sheet-head"><div class="sheet-title">Επίλεξε επαφές</div><button class="sheet-close" data-close>✕</button></div>' +
+    '<div class="sheet-body">' +
+      (list.length > 5 ? '<input class="text-input" id="pk-q" type="search" placeholder="Αναζήτηση...">' : '') +
+      (groups.length ? '<div class="chips" id="pk-chips"></div>' : '') +
+      '<div id="pk-list" style="display:flex;flex-direction:column;gap:8px"></div>' +
+    '</div>' +
+    '<div class="sheet-foot"><button class="btn-secondary" data-close>Άκυρο</button><button class="btn-primary" id="pk-add" disabled>Προσθήκη</button></div>',
+    sh => {
+      const draw = () => {
+        if (groups.length) {
+          sh.querySelector('#pk-chips').innerHTML = ['', ...groups].map(g => '<button class="chip' + (g === group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλες') + '</button>').join('');
+          sh.querySelectorAll('#pk-chips .chip').forEach(c => c.addEventListener('click', () => { group = c.dataset.g; draw(); }));
+        }
+        const items = matchSaved(list, q).filter(p => !group || (p.group || '') === group);
+        sh.querySelector('#pk-list').innerHTML = items.length ? items.map(p => {
+          const on = sel.has(p.id), dup = inRoute(p);
+          return '<div class="pick-row' + (on ? ' on' : '') + (dup ? ' in-route' : '') + '" data-id="' + esc(p.id) + '"><div class="pick-check">' + (on ? '✓' : '') + '</div><div class="place-main"><div class="place-name">' + esc(p.name) + (p.group ? ' <span class="place-group">' + esc(p.group) + '</span>' : '') + '</div><div class="place-addr">' + esc(p.address) + (dup ? ' · ήδη στη διαδρομή' : '') + '</div></div></div>';
+        }).join('') : '<div class="empty" style="box-shadow:none">Κανένα αποτέλεσμα.</div>';
+        sh.querySelectorAll('.pick-row').forEach(r => r.addEventListener('click', () => {
+          const id = r.dataset.id;
+          if (inRoute(list.find(x => x.id === id))) { toast('Είναι ήδη στη διαδρομή'); return; }
+          sel.has(id) ? sel.delete(id) : sel.add(id); draw();
+        }));
+        const add = sh.querySelector('#pk-add');
+        add.disabled = !sel.size;
+        add.textContent = sel.size ? 'Προσθήκη ' + sel.size + (sel.size === 1 ? ' στάσης' : ' στάσεων') : 'Προσθήκη';
+      };
+      const qi = sh.querySelector('#pk-q'); if (qi) qi.addEventListener('input', () => { q = qi.value; draw(); });
+      sh.querySelector('#pk-add').addEventListener('click', () => {
+        let n = 0;
+        list.filter(p => sel.has(p.id)).forEach(p => { if (addPlaceAsStop(placeFromSaved(p))) n++; });
+        closeSheet(); invalidateResult(); renderStops();
+        toast('Προστέθηκαν ' + n + (n === 1 ? ' στάση' : ' στάσεις'));
+      });
+      draw();
+    });
+}
+
+// ───────── Καρτέλα «Επαφές» ─────────
+function renderContacts() {
+  const all = loadPlaces(), groups = groupsOf(all);
+  if (S.filter.group && groups.indexOf(S.filter.group) < 0) S.filter.group = '';
+  $('contacts-chips').innerHTML = groups.length ? ['', ...groups].map(g => '<button class="chip' + (g === S.filter.group ? ' active' : '') + '" data-g="' + esc(g) + '">' + (g ? esc(g) : 'Όλες (' + all.length + ')') + '</button>').join('') : '';
+  $('contacts-chips').querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => { S.filter.group = c.dataset.g; renderContacts(); }));
+  $('contacts-search').style.display = all.length > 3 ? '' : 'none';
+  const box = $('contacts-list');
+  if (!all.length) {
+    box.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><b>Εδώ αποθηκεύεις τις επαφές σου</b><br>(πελάτες, προμηθευτές, αποθήκη…) με διεύθυνση και τηλέφωνο.<br><br>Πάτα <b>«＋ Νέα επαφή»</b> παραπάνω,<br>ή <b>«☆ Σε επαφές»</b> δίπλα σε μια στάση.<br><br>Μετά τις βάζεις στη διαδρομή με ένα πάτημα από το <b>«👥 Από επαφές»</b>.</div>';
+    return;
+  }
+  const items = matchSaved(all, S.filter.q).filter(p => !S.filter.group || (p.group || '') === S.filter.group);
+  if (!items.length) { box.innerHTML = '<div class="empty">Κανένα αποτέλεσμα.</div>'; return; }
+  box.innerHTML = items.map(p =>
+    '<div class="place-card" data-id="' + esc(p.id) + '"><div class="place-main" data-act="edit">' +
+      '<div class="place-name">' + esc(p.name) + (p.group ? '<span class="place-group">' + esc(p.group) + '</span>' : '') + '</div>' +
+      '<div class="place-addr">📍 ' + esc(p.address) + '</div>' +
+      (p.phone ? '<div class="place-addr">📞 ' + esc(p.phone) + '</div>' : '') +
+      (p.note ? '<div class="place-addr">📝 ' + esc(p.note) + '</div>' : '') +
+      (p.uses ? '<div class="place-uses">σε ' + p.uses + (p.uses === 1 ? ' διαδρομή' : ' διαδρομές') + '</div>' : '') +
+    '</div><div class="place-actions"><button class="btn-small" data-act="route">＋ Στάση</button>' +
+      (p.phone ? '<a class="btn-small" style="justify-content:center;background:var(--green-light);color:var(--green-dark)" href="' + esc(telHref(p.phone)) + '">📞 Κλήση</a>' : '') +
+    '</div></div>').join('');
+  box.querySelectorAll('.place-card').forEach(card => {
+    const p = all.find(x => x.id === card.dataset.id);
+    card.querySelector('[data-act=edit]').addEventListener('click', () => openContactSheet({ edit: p }));
+    card.querySelector('[data-act=route]').addEventListener('click', () => {
+      if (addPlaceAsStop(placeFromSaved(p))) { invalidateResult(); renderStops(); toast('＋ ' + p.name + ' στη διαδρομή'); }
+    });
+  });
+}
+$('contacts-search').addEventListener('input', e => { S.filter.q = e.target.value; renderContacts(); });
+$('btn-new-contact').addEventListener('click', () => openContactSheet({}));
+$('btn-export').addEventListener('click', async () => {
+  const list = loadPlaces();
+  if (!list.length) { toast('Δεν υπάρχουν επαφές για εξαγωγή'); return; }
+  const json = JSON.stringify({ app: 'RouteAI', version: 2, places: list }, null, 1);
+  const file = new File([json], 'routeai-epafes.json', { type: 'application/json' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'RouteAI επαφές' }); return; } } catch (e) { if (e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+});
+$('btn-import').addEventListener('click', () => $('import-file').click());
+$('import-file').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const incoming = (Array.isArray(data) ? data : data.places || []).filter(p => p && p.name && isFinite(p.lat) && isFinite(p.lng));
+    const list = loadPlaces(); let added = 0;
+    incoming.forEach(p => {
+      if (list.some(x => samePlace(x, p))) return;
+      list.push({ id: newPlaceId(), name: String(p.name).slice(0, 60), group: String(p.group || '').slice(0, 30), address: String(p.address || ''), phone: String(p.phone || '').slice(0, 30), note: String(p.note || '').slice(0, 120), lat: +p.lat, lng: +p.lng, placeId: p.placeId || null, uses: +p.uses || 0, lastUsed: +p.lastUsed || 0, created: Date.now() });
+      added++;
+    });
+    savePlaces(list); renderContacts(); renderStops();
+    toast('Εισήχθησαν ' + added + ' νέες επαφές');
+  } catch (err) { showAlert('Το αρχείο δεν είναι έγκυρο αρχείο επαφών RouteAI.', 'info'); }
+});
+
+// ───────── Υπολογισμός διαδρομής ─────────
+async function buildMatrix(points) {
+  const n = points.length, svc = new google.maps.DistanceMatrixService();
+  const locs = points.map(p => new google.maps.LatLng(p.lat, p.lng));
+  const M = Array.from({ length: n }, () => Array(n).fill(Infinity));
+  for (const [a, b] of batchOrigins(n)) {
+    const res = await new Promise((resolve, reject) => svc.getDistanceMatrix({
+      origins: locs.slice(a, b), destinations: locs,
+      travelMode: google.maps.TravelMode[MODES[S.mode].gm], unitSystem: google.maps.UnitSystem.METRIC
+    }, (r, status) => status === 'OK' ? resolve(r) : reject(new Error('DM_' + status))));
+    res.rows.forEach((row, ri) => row.elements.forEach((el, j) => { const i = a + ri; M[i][j] = i === j ? 0 : (el.status === 'OK' ? el.duration.value : Infinity); }));
+  }
+  return M;
 }
 
 async function generateRoute() {
-  const userStops = getAllStops();
-  const err = document.getElementById('error-msg');
-  if (userStops.length < 1) { err.style.display = 'block'; return; }
-  err.style.display = 'none';
-
-  const origin = gpsAddress || userStops[0];
-  const allStops = gpsAddress ? [origin, ...userStops] : userStops;
-
-  const fixEnd = document.getElementById('fix-end').checked;
-  const roundTrip = document.getElementById('round-trip').checked;
-
-  document.getElementById('generate-btn').disabled = true;
-  document.getElementById('loading').classList.add('visible');
-  document.getElementById('result-card').classList.remove('visible');
-
+  hideAlert();
+  if (!S.stops.length) { showAlert('Πρόσθεσε τουλάχιστον 1 στάση με το «＋ Προσθήκη στάσης».', 'info'); return; }
+  invalidateResult();
+  setLoading(true, 'Υπολογισμός βέλτιστης σειράς...');
   try {
     await gmReady();
-    let orderedStops, savedSeconds = 0;
-    if (allStops.length > 2) {
-      const result = await computeOptimalOrder(allStops, fixEnd);
-      orderedStops = result.order.map(i => allStops[i]);
-      savedSeconds = result.savedSeconds;
-    } else {
-      orderedStops = [...allStops];
+    if (S.origin.type === 'gps' && S.gpsPromise) await Promise.race([S.gpsPromise, new Promise(r => setTimeout(r, 5000))]);
+    const origin = originPoint();
+    const stopPts = S.stops.map(st => st.place).filter(p => !(origin && !origin.isGps && samePlace(p, origin)));   // η αφετηρία δεν μετράει και ως στάση
+    if (!stopPts.length) throw new Error('Πρόσθεσε τουλάχιστον μία στάση διαφορετική από την αφετηρία.');
+    const points = (origin ? [origin] : []).concat(stopPts);
+    if (points.length < 2) throw new Error('Δεν βρέθηκε η τοποθεσία σου. Πάτα «Αλλαγή» στην αφετηρία ή πρόσθεσε 2 στάσεις (η 1η θα είναι η αφετηρία).');
+    if (points.length > MAX_POINTS) throw new Error('Μέγιστο ' + MAX_POINTS + ' σημεία ανά διαδρομή.');
+    if (S.mode === 'transit' && (points.length > 2 || S.roundTrip)) throw new Error('Με ΜΜΜ το Google Maps δεν δέχεται ενδιάμεσες στάσεις. Διάλεξε Αυτοκίνητο, Με τα πόδια ή Ποδήλατο.');
+
+    let order = points.map((_, i) => i), M = null, approx = null;
+    if (points.length > 2 || S.roundTrip) {
+      try { M = await buildMatrix(points); }
+      catch (e) { M = straightMatrix(points); approx = e.message; console.warn('Distance Matrix failed:', e.message); }
+      order = solveOrder(M, { fixEnd: S.fixEnd, roundTrip: S.roundTrip });
+      const bad = unreachableLegs(order, M, S.roundTrip);
+      if (bad.length) throw new Error('Δεν υπάρχει διαδρομή (' + MODES[S.mode].label.toLowerCase() + ') προς: ' + bad.map(([, b]) => displayName(points[b])).join(', '));
     }
-    if (roundTrip) orderedStops.push(orderedStops[0]);
-    currentStops = orderedStops;
-
-    const enc = s => encodeURIComponent(s);
-    const origin2 = enc(orderedStops[0]);
-    const destination = enc(orderedStops[orderedStops.length-1]);
-    const waypoints = orderedStops.slice(1,-1).map(enc).join('|');
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${origin2}&destination=${destination}&travelmode=${travelMode}`;
-    if (waypoints) url += `&waypoints=${waypoints}`;
-    generatedUrl = url;
-
-    document.getElementById('open-btn').href = url;
-    document.getElementById('result-sub').textContent = orderedStops.length + ' στάσεις';
-
-    const badge = document.getElementById('savings-badge');
-    if (savedSeconds > 60) { badge.textContent = `⏱ Εξοικονομείς ~${Math.round(savedSeconds/60)} λεπτά`; badge.style.display = 'inline-flex'; }
-    else badge.style.display = 'none';
-
-    const list = document.getElementById('route-list');
-    list.innerHTML = '';
-    orderedStops.forEach((stop, i) => {
-      const isStart = i === 0, isEnd = i === orderedStops.length-1;
-      list.innerHTML += `
-        <div class="route-item">
-          <div class="route-item-dot ${isStart?'start':isEnd?'end':'mid'}">${isStart?'📍':isEnd?'🏁':i}</div>
-          <div class="route-item-name">${stop}</div>
-        </div>
-        ${i < orderedStops.length-1 ? '<div class="route-connector"></div>' : ''}
-      `;
-    });
-
-    document.getElementById('result-card').classList.add('visible');
-    showMinimap(orderedStops);
-    document.getElementById('result-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } catch(e) {
-    alert('Σφάλμα: ' + e.message);
-  } finally {
-    document.getElementById('generate-btn').disabled = false;
-    document.getElementById('loading').classList.remove('visible');
-  }
+    const identity = points.map((_, i) => i);
+    const seq = order.map(i => points[i]);
+    if (S.roundTrip) seq.push(points[0]);
+    S.last = {
+      seq, mode: S.mode, links: buildMapsLinks(seq, S.mode), approx, origin: origin ? (origin.isGps ? 'gps' : 'place') : 'none', roundTrip: S.roundTrip,
+      total: M ? routeCost(order, M, S.roundTrip) : null,
+      saved: M ? routeCost(identity, M, S.roundTrip) - routeCost(order, M, S.roundTrip) : 0
+    };
+    bumpUses(points.filter(p => !p.isGps));
+    renderResult();
+    $('result-card').classList.add('visible');
+    showMinimap(seq);
+    $('result-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    showAlert(friendlyError(e));
+  } finally { setLoading(false); }
 }
 
-function copyLink() {
-  navigator.clipboard.writeText(generatedUrl).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = '✓ OK'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Αντιγραφή'; btn.classList.remove('copied'); }, 2000);
+function renderResult() {
+  const L = S.last; if (!L) return;
+  const { seq, links } = L, m = MODES[L.mode];
+  $('result-title').textContent = '✅ Βέλτιστη διαδρομή · ' + m.icon + ' ' + m.label;
+  let sub = seq.length + ' σημεία';
+  if (L.total != null && isFinite(L.total)) sub += L.approx ? ' · ~' + fmtDistance(L.total) + ' σε ευθεία' : ' · συνολικά ~' + fmtDuration(L.total);
+  $('result-sub').textContent = sub;
+  const badge = $('savings-badge');
+  if (!L.approx && L.saved > 60) { badge.textContent = '⏱ Εξοικονομείς ~' + fmtDuration(L.saved) + ' σε σχέση με τη σειρά που τα έβαλες'; badge.style.display = 'inline-flex'; }
+  else badge.style.display = 'none';
+  const note = $('approx-note');
+  if (L.approx) { note.style.display = 'block'; note.textContent = '⚠️ Το Google δεν έδωσε χρόνους διαδρομής (' + L.approx.replace('DM_', '') + '), οπότε η σειρά βγήκε με απόσταση σε ευθεία. Το Google Maps θα κάνει κανονική πλοήγηση. Για ακριβή σειρά ενεργοποίησε το Distance Matrix API στο Google Cloud.'; }
+  else note.style.display = 'none';
+
+  $('route-list').innerHTML = seq.map((p, i) => {
+    const cls = i === 0 ? 'start' : i === seq.length - 1 ? 'end' : 'mid';
+    const lbl = i === 0 ? 'Α' : i === seq.length - 1 ? '🏁' : i;
+    const c = findSaved(p);
+    const name = c ? c.name : (p.name || p.label);
+    const addr = c ? c.address : (p.address && p.address !== name ? p.address : '');
+    const isReturn = L.roundTrip && i === seq.length - 1 && i > 0;
+    let actions = '';
+    if (c && c.phone) actions += '<a class="btn-small" style="background:var(--green-light);color:var(--green-dark)" href="' + esc(telHref(c.phone)) + '">📞</a>';
+    else if (!c && !p.isGps && !isReturn) actions += '<button class="btn-save-contact" data-i="' + i + '">☆ Σε επαφές</button>';
+    return '<div class="route-item"><div class="route-item-dot ' + cls + '">' + lbl + '</div><div class="route-item-text"><div class="route-item-name">' + esc(name) + (isReturn ? ' (επιστροφή)' : '') + '</div>' + (addr ? '<div class="route-item-addr">' + esc(addr) + '</div>' : '') + '</div>' + actions + '</div>' +
+      (i < seq.length - 1 ? '<div class="route-connector"></div>' : '');
+  }).join('');
+  $('route-list').querySelectorAll('.btn-save-contact').forEach(b => b.addEventListener('click', () => openContactSheet({ place: seq[+b.dataset.i] })));
+
+  const ln = $('links-note');
+  if (links.length > 1) { ln.textContent = 'Το Google Maps δέχεται έως ' + (MAX_URL_WAYPOINTS + 2) + ' σημεία ανά link, γι’ αυτό η διαδρομή χωρίστηκε σε ' + links.length + ' τμήματα. Άνοιξέ τα με τη σειρά.'; ln.style.display = 'block'; }
+  else ln.style.display = 'none';
+  $('links-list').innerHTML = links.map((l, i) => '<a class="btn-open" href="' + esc(l.url) + '" target="_blank" rel="noopener">↗ ' + (links.length > 1 ? 'Τμήμα ' + (i + 1) + ' (σημεία ' + l.from + '–' + l.to + ')' : 'Άνοιγμα στο Google Maps') + ' · ' + m.icon + '</a>').join('');
+}
+
+function showMinimap(seq) {
+  const div = $('minimap');
+  div.style.display = 'block';
+  try {
+    if (!S.map) S.map = new google.maps.Map(div, { zoom: 11, center: { lat: seq[0].lat, lng: seq[0].lng }, mapTypeControl: false, streetViewControl: false, fullscreenControl: false, gestureHandling: 'cooperative' });
+    S.overlays.forEach(o => o.setMap(null)); S.overlays = [];
+    if (!S.renderer) { S.renderer = new google.maps.DirectionsRenderer(); S.renderer.setMap(S.map); }
+    const pt = p => ({ lat: p.lat, lng: p.lng });
+    new google.maps.DirectionsService().route({
+      origin: pt(seq[0]), destination: pt(seq[seq.length - 1]),
+      waypoints: seq.slice(1, -1).map(p => ({ location: pt(p), stopover: true })),
+      travelMode: google.maps.TravelMode[MODES[S.last ? S.last.mode : S.mode].gm], optimizeWaypoints: false
+    }, (res, status) => {
+      if (status === 'OK') { S.renderer.setMap(S.map); S.renderer.setDirections(res); return; }
+      S.renderer.setMap(null);
+      const bounds = new google.maps.LatLngBounds();
+      seq.forEach((p, i) => { S.overlays.push(new google.maps.Marker({ position: pt(p), map: S.map, label: i === 0 ? 'Α' : String(i) })); bounds.extend(pt(p)); });
+      S.overlays.push(new google.maps.Polyline({ path: seq.map(pt), map: S.map, strokeColor: '#007AFF', strokeWeight: 3, strokeOpacity: 0.8 }));
+      S.map.fitBounds(bounds);
+    });
+  } catch (e) { div.style.display = 'none'; }
+}
+
+// ───────── Share / Ιστορικό ─────────
+function shareText() {
+  if (!S.last) return '';
+  const ls = S.last.links;
+  return '🗺️ Διαδρομή RouteAI:\n' + (ls.length === 1 ? ls[0].url : ls.map((l, i) => 'Τμήμα ' + (i + 1) + ': ' + l.url).join('\n'));
+}
+$('copy-btn').addEventListener('click', () => {
+  if (!S.last) return;
+  const txt = S.last.links.map(l => l.url).join('\n');
+  const done = () => { const b = $('copy-btn'); b.textContent = '✓ OK'; b.classList.add('copied'); setTimeout(() => { b.textContent = '📋 Αντιγραφή'; b.classList.remove('copied'); }, 2000); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(() => prompt('Αντέγραψε το link:', txt));
+  else prompt('Αντέγραψε το link:', txt);
+});
+$('btn-wa').addEventListener('click', () => { if (S.last) window.open('https://wa.me/?text=' + encodeURIComponent(shareText()), '_blank'); });
+$('btn-viber').addEventListener('click', () => { if (S.last) window.location.href = 'viber://forward?text=' + encodeURIComponent(shareText()); });
+
+function loadHistory() { return Store.get('routeai-history', []); }
+$('save-btn').addEventListener('click', () => {
+  if (!S.last) return;
+  const h = loadHistory();
+  h.unshift({ id: Date.now(), date: new Date().toLocaleString('el-GR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    points: S.last.seq.map(p => ({ name: displayName(p), address: p.address || '', label: p.label, lat: p.lat, lng: p.lng, placeId: p.placeId || null, isGps: !!p.isGps })),
+    links: S.last.links.map(l => l.url), mode: S.last.mode, origin: S.last.origin, roundTrip: S.last.roundTrip });
+  if (h.length > 30) h.length = 30;
+  const ok = Store.set('routeai-history', h);
+  const b = $('save-btn');
+  b.textContent = ok ? '✅ Αποθηκεύτηκε στο ιστορικό' : '⚠️ Δεν αποθηκεύτηκε (ιδιωτική περιήγηση;)';
+  setTimeout(() => { b.textContent = '🕐 Αποθήκευση στο ιστορικό'; }, 2500);
+});
+function renderHistory() {
+  const h = loadHistory(), c = $('history-container');
+  if (!h.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🕐</div><b>Δεν υπάρχει ιστορικό</b><br>Δημιούργησε μια διαδρομή και πάτα «Αποθήκευση στο ιστορικό».</div>'; return; }
+  c.innerHTML = h.map(e => {
+    const names = e.points ? e.points.map(p => p.name || p.label) : (e.labels || e.stops || []);
+    const links = e.links || (e.url ? [e.url] : []);
+    const m = MODES[e.mode] || MODES.driving;
+    return '<div class="history-item" data-id="' + e.id + '"><div class="history-item-header"><div class="history-item-title">' + m.icon + ' ' + esc(names[0] || '') + ' → ' + esc(names[names.length - 1] || '') + '</div><div class="history-item-date">' + esc(e.date || '') + '</div></div>' +
+      '<div class="history-item-stops">' + names.map(esc).join(' → ') + '</div><div class="history-item-actions">' +
+      (e.points ? '<button class="btn-history" data-act="load">↺ Ξανά στη διαδρομή</button>' : '') +
+      links.map((u, i) => '<a class="btn-history" href="' + esc(u) + '" target="_blank" rel="noopener">↗ ' + (links.length > 1 ? 'Τμήμα ' + (i + 1) : 'Google Maps') + '</a>').join('') +
+      '<button class="btn-history-del" data-act="del">🗑</button></div></div>';
+  }).join('');
+  c.querySelectorAll('.history-item').forEach(item => {
+    const e = h.find(x => String(x.id) === item.dataset.id);
+    item.querySelector('[data-act=del]').addEventListener('click', () => { Store.set('routeai-history', loadHistory().filter(x => x.id !== e.id)); renderHistory(); });
+    const ld = item.querySelector('[data-act=load]');
+    if (ld) ld.addEventListener('click', () => {
+      let pts = e.points.map(p => ({ placeId: p.placeId, name: p.name, address: p.address, label: p.label, lat: p.lat, lng: p.lng, isGps: p.isGps }));
+      if (e.roundTrip || (pts.length > 2 && samePlace(pts[0], pts[pts.length - 1]))) pts.pop();
+      if (pts[0] && pts[0].isGps) { pts.shift(); S.origin = { type: 'gps' }; }
+      else if (e.origin === 'place' && pts.length) { S.origin = { type: 'place', place: pts.shift() }; }
+      S.stops = []; pts.forEach(p => addPlaceAsStop(p));
+      if (MODES[e.mode]) { S.mode = e.mode; saveSettings(); renderModes(); }
+      invalidateResult(); renderOrigin(); renderStops(); switchTab('route');
+      toast('Φορτώθηκαν ' + S.stops.length + ' στάσεις');
+    });
   });
 }
 
-function shareWhatsApp() {
-  window.open('https://wa.me/?text=' + encodeURIComponent('🗺️ Βέλτιστη διαδρομή από RouteAI:\n' + generatedUrl), '_blank');
+// ───────── Γενικά ─────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  ['route', 'contacts', 'history'].forEach(t => $('tab-' + t).classList.toggle('active', t === tab));
+  if (tab === 'history') renderHistory();
+  if (tab === 'contacts') renderContacts();
+  if (tab === 'route') { renderOrigin(); renderStops(); }
+  window.scrollTo(0, 0);
 }
-
-function shareViber() {
-  window.open('viber://forward?text=' + encodeURIComponent('🗺️ Βέλτιστη διαδρομή από RouteAI:\n' + generatedUrl), '_blank');
-}
-
-function saveToHistory() {
-  const history = JSON.parse(localStorage.getItem('routeai-history') || '[]');
-  history.unshift({ id: Date.now(), date: new Date().toLocaleDateString('el-GR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}), stops: currentStops, url: generatedUrl, mode: travelMode });
-  if (history.length > 20) history.pop();
-  localStorage.setItem('routeai-history', JSON.stringify(history));
-  const btn = document.querySelector('.btn-save-fav');
-  btn.textContent = '✅ Αποθηκεύτηκε!';
-  setTimeout(() => { btn.textContent = '⭐ Αποθήκευση στο ιστορικό'; }, 2000);
-}
-
-function renderHistory() {
-  const history = JSON.parse(localStorage.getItem('routeai-history') || '[]');
-  const container = document.getElementById('history-container');
-  if (history.length === 0) {
-    container.innerHTML = `<div class="history-empty"><div class="history-empty-icon">🕐</div><div class="history-empty-text">Δεν υπάρχει ιστορικό</div><div style="font-size:14px;color:var(--text3)">Δημιούργησε μια διαδρομή και αποθήκευσέ τη!</div></div>`;
-    return;
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+document.querySelectorAll('.seg-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+document.querySelectorAll('.toggle-row').forEach(r => r.addEventListener('click', () => {
+  const k = r.dataset.opt; S[k] = !S[k];
+  if (S[k]) S[k === 'fixEnd' ? 'roundTrip' : 'fixEnd'] = false;
+  saveSettings(); renderModes(); invalidateResult();
+}));
+$('btn-add-stop').addEventListener('click', () => openStopSearch(null));
+$('btn-pick-saved').addEventListener('click', openPicker);
+$('btn-origin').addEventListener('click', () => Search.open({
+  title: 'Από πού ξεκινάς;', allowGps: true,
+  onPick: p => {
+    if (p.gps) { S.origin = { type: 'gps' }; if (!S.gps) getGPSLocation(); }
+    else S.origin = { type: 'place', place: p };
+    invalidateResult(); renderOrigin(); renderStops();
   }
-  container.innerHTML = history.map(e => `
-    <div class="history-item">
-      <div class="history-item-header">
-        <div class="history-item-title">${e.stops[0]} → ${e.stops[e.stops.length-1]}</div>
-        <div class="history-item-date">${e.date}</div>
-      </div>
-      <div class="history-item-stops">${e.stops.join(' → ')}</div>
-      <div class="history-item-actions">
-        <button class="btn-history-load" onclick="window.open('${e.url}','_blank')">↗ Άνοιγμα</button>
-        <button class="btn-history-del" onclick="deleteHistory(${e.id})">🗑</button>
-      </div>
-    </div>
-  `).join('');
-}
+}));
+$('btn-gps-refresh').addEventListener('click', getGPSLocation);
+$('btn-clear').addEventListener('click', () => { if (!confirm('Αφαίρεση όλων των στάσεων;')) return; S.stops = []; invalidateResult(); hideAlert(); renderStops(); });
+$('generate-btn').addEventListener('click', generateRoute);
+$('global-voice-btn').addEventListener('click', () => {
+  if (S.listening) { stopVoice(); return; }
+  switchTab('route');
+  openStopSearch(null, { noFocus: true });
+  startVoiceSearch();
+});
+$('btn-install').addEventListener('click', () => alert('📱 Προσθήκη στην αρχική οθόνη:\n\niPhone (Safari):\n1. Κουμπί Κοινοποίηση (□↑)\n2. «Προσθήκη στην οθόνη Αφετηρίας»\n\nAndroid (Chrome):\n1. Μενού (⋮)\n2. «Προσθήκη στην αρχική οθόνη»'));
+$('btn-banner-x').addEventListener('click', () => { $('install-banner').classList.remove('visible'); Store.set('routeai-banner-off', true); });
+if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && !window.navigator.standalone && !matchMedia('(display-mode: standalone)').matches && !Store.get('routeai-banner-off', false))
+  $('install-banner').classList.add('visible');
 
-function deleteHistory(id) {
-  let h = JSON.parse(localStorage.getItem('routeai-history') || '[]');
-  localStorage.setItem('routeai-history', JSON.stringify(h.filter(e => e.id !== id)));
-  renderHistory();
-}
-
-function showInstallInstructions() {
-  alert('📱 Για να προσθέσεις στην αρχική οθόνη:\n\niPhone/iPad (Safari):\n1. Πάτα το κουμπί "Κοινοποίηση" (□↑)\n2. Επίλεξε "Προσθήκη στην οθόνη Αφετηρίας"\n3. Πάτα "Προσθήκη"\n\nAndroid (Chrome):\n1. Πάτα το μενού (⋮)\n2. Επίλεξε "Προσθήκη στην αρχική οθόνη"');
-}
-
-// Init
-if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && !window.navigator.standalone) {
-  document.getElementById('install-banner').classList.add('visible');
-}
-
-addStop(); addStop();
+loadSettings(); renderModes();
+loadDraft();
+renderOrigin(); renderStops();
 getGPSLocation();
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUj06T9pckZympGEb3E8bXLunKgLhnwB8&libraries=places&callback=googleMapsReady&loading=async" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUj06T9pckZympGEb3E8bXLunKgLhnwB8&libraries=places&callback=googleMapsReady&loading=async&language=el&region=GR&v=weekly" async defer onerror="mapsScriptError()"></script>
 </body>
 </html>
